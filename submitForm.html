@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Student Info</title>
+<style type="text/css">
+.errorcss {
+	color: red;
+}
+</style>
+</head>
+<body>
+	<h2>
+		<b>Registration Form:</b>
+	</h2>
+	<br>
+	<br>
+	<form id="studentModel" action="submitForm" method="post">
+First Name : <input id="firstName" name="firstName" type="text" value=""/>
+		<span id="firstName.errors" class="errorcss">must not be blank</span>
+		<br>
+		<br>
+Last Name  : <input id="lastName" name="lastName" type="text" value=""/>
+		<span id="lastName.errors" class="errorcss">Enter your last Name<br/>isrequired</span>
+		<br>
+		<br>
+		<!-- drop down list : static setup -->
+Country :
+<select id="country" name="country">
+			<option value="India">India</option>
+			<option value="UAE">UAE</option>
+			<option value="USA">USA</option>
+			<option value="Germany"></option>
+		</select>
+		<br>
+		<br>
+		<!-- drop down list : student class setup		 -->
+Course:
+<select id="course" name="course">
+			<option value="CSE">CSE</option><option value="EEE">EEE</option><option value="ECE">ECE</option><option value="Mech">Mech</option>
+		</select>
+		<br>
+		<br>
+		
+YearsOfExp:
+<select id="yearsOfExp" name="yearsOfExp">
+			
+		</select>
+		<br>
+		<br>
+		
+Gender:
+<span><input id="gender1" name="gender" type="radio" value="Male"/><label for="gender1">Male</label></span><span><input id="gender2" name="gender" type="radio" value="Female"/><label for="gender2">Female</label></span>
+		<br>
+		<br>
+		
+		
+
+
+Skills:
+<input id="skills1" name="skills" type="checkbox" value="JAVA"/><label for="skills1">JAVA</label><input type="hidden" name="_skills" value="on"/>
+		<input id="skills2" name="skills" type="checkbox" value="DBMS"/><label for="skills2">DBMS</label><input type="hidden" name="_skills" value="on"/>
+		<input id="skills3" name="skills" type="checkbox" value="JS"/><label for="skills3">JS</label><input type="hidden" name="_skills" value="on"/>
+		<input id="skills4" name="skills" type="checkbox" value="Spring"/><label for="skills4">Spring</label><input type="hidden" name="_skills" value="on"/>
+		<input id="skills5" name="skills" type="checkbox" value="Hibernate"/><label for="skills5">Hibernate</label><input type="hidden" name="_skills" value="on"/>
+		<br>
+		<br>
+		
+FreePasses:
+<input id="freePasses" name="freePasses" type="text" value=""/>
+		
+		<br>
+		<br>
+
+Email:
+<input id="email" name="email" type="text" value=""/>
+		
+		<br>
+		<br>
+		<input type="submit" />
+	</form>
+
+</body>
+
+</html>
