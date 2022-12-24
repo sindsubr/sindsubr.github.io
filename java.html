@@ -9,7 +9,7 @@
     <a href="https://beginnersbook.com/2022/06/jdk-vs-jre-vs-jvm-difference-between-them/">diff b/w jdk,jvm,jre</a>
 
 <img src="https://beginnersbook.com/wp-content/uploads/2013/05/jdk.jpg"/>
-<h2>JDK: Java Development Kit</h2>
+<h3>JDK: Java Development Kit</h3>
 <ol>
 <li>
 <ul>
@@ -24,9 +24,9 @@
  package of Tools to develop java programs
  </li></ol>
 
-<h2>
+<h3>
 JRE: Java Runtime Environment
-</h2>
+</h3>
 <ol>
   <li>
 <ul>
@@ -36,10 +36,31 @@ JRE: Java Runtime Environment
 <li>package of Tools to run java programs</li>
 <li>loads compiled code to the memory and connects the code to the appropriate java class libraries</li></ol>
 
-<h2>JVM: Java Virtual Machine</h2>
+<h3>JVM: Java Virtual Machine</h3>
 <ol><li>
 <b>Java Interpreter : </b>To run java programs</li>
   <li> JVM converts the bytecode into machine code.</li>
     <li>JVM is platform independent as JVM doesn’t depend on the hardware and operating system of the machine.</li></ol>
+    <h2>Serialization:</h2>
+    <img src="https://static.javatpoint.com/images/core/java-serialization.png"/>
+    <h3>Marker Interface:</h3>
+    Serializable is a marker interface (has no data member and method).<br>
+    It is used to "mark" Java classes so that the objects of these classes may get a certain capability.<br>
+    The <b>Cloneable</b> and <b>Remote<b> are also Marker interfaces.<br>
+    It is used to <b>deliver type information at runtime to the JVM</b> so that it can take some action based on the information received<br>
+    
+    <h3>Serialization and DeSerialization:</h3>
+The Serializable interface must be implemented by the class whose object needs to be persisted.<br>
+The <b>String class and all the wrapper classes<b> implement the java.io.Serializable interface by default.<br>
+    <h3>ObjectOutputStream class</h3>
+    <p>The ObjectOutputStream class is used to write primitive data types, and Java objects to an OutputStream. Only objects that support the java.io.Serializable interface can be written to streams.</p>
+    <h3>ObjectInputStream class</h3>
+    <p>An ObjectInputStream deserializes objects and primitive data written using an ObjectOutputStream.</p>
+    
+    
+    
+    
   </body>
 </html>
+
+    
