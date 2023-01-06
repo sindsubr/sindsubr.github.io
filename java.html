@@ -1,146 +1,281 @@
 <html>
-  <head>
-    <meta charset="ISO-8859-1">
-    <link rel="stylesheet" href="/static/css/mystyle.css">
-    <style>
-      h1 {
-        color: green;
-      }
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="/static/css/mystyle.css">
+<style>
+h1 {
+	color: green;
+}
 
-      h2 {
-        color: purple;
-      }
+h2 {
+	color: purple;
+}
 
-      h3 {
-        color: red;
-      }
+h3 {
+	color: red;
+}
 
-      b {
-        color: brown;
-      }
-    </style>
-    <title> JAVA Notes</title>
-  </head>
-  <body>
-    <h1>Java Notes: </h1>
-    <h2> JDK,JRE,JVM </h2>
-    <a href="https://beginnersbook.com/2022/06/jdk-vs-jre-vs-jvm-difference-between-them/">diff b/w jdk,jvm,jre</a>
-    <img src="https://beginnersbook.com/wp-content/uploads/2013/05/jdk.jpg" />
-    <h3>JDK: Java Development Kit</h3>
-    <ol>
-      <li>
-        <ul>
-          <li>
-            <b>Compiler:</b> To create .class(byte codes) from the .java file
-          </li>
-          <li>
-            <b>Debugger:</b>
-          </li>
-        </ul>
-      </li>
-      <li> package of Tools to develop java programs </li>
-    </ol>
-    <h3> JRE: Java Runtime Environment </h3>
-    <ol>
-      <li>
-        <ul>
-          <li>Java class libraries</li>
-          <li>ClassLoader and Byte code verification</li>
-        </ul>
-      </li>
-      <li>package of Tools to run java programs</li>
-      <li>loads compiled code to the memory and connects the code to the appropriate java class libraries</li>
-    </ol>
-    <h3>JVM: Java Virtual Machine</h3>
-    <ol>
-      <li>
-        <b>Java Interpreter : </b>To run java programs
-      </li>
-      <li> JVM converts the bytecode into machine code.</li>
-      <li>JVM is platform independent as JVM doesn’t depend on the hardware and operating system of the machine.</li>
-    </ol>
-    <h2>Serialization:</h2>
-    <img src="https://static.javatpoint.com/images/core/java-serialization.png" />
-    <h3>Marker Interface:</h3> Serializable is a marker interface (has no data member and method). <br> It is used to "mark" Java classes so that the objects of these classes may get a certain capability. <br> The <b>Cloneable</b> and <b>Remote</b> are also Marker interfaces. <br> It is used to <b>deliver type information at runtime to the JVM</b> so that it can take some action based on the information received <br>
-    <h2>Serialization and DeSerialization:</h2> The Serializable interface must be implemented by the class whose object needs to be persisted. <br> The <b>String class and all the wrapper classes</b> implement the java.io.Serializable interface by default. <br>
-    <h3>ObjectOutputStream class</h3>
-    <p>The ObjectOutputStream class is used to write primitive data types, and Java objects to an OutputStream. Only objects that support the java.io.Serializable interface can be written to streams.</p>
-    <h3>ObjectInputStream class</h3>
-    <p>An ObjectInputStream deserializes objects and primitive data written using an ObjectOutputStream.</p>
-    <a href="https://github.com/sindsubr/sindsubr.github.io/blob/main/javaprograms/src/main/java/javaprograms/SerializationExample.java">serialization java program example</a>
-    <h2>String in Java</h2>
-    <h3>String</h3>
-    <p> String is <b>immutable</b> and so you have to assign again to store the result back to string variable after performing operations like <b>strcmp,strcpy</b> etc., <br> Literals saved in <b>StringPool</b> in java heap memory. <br> JVM checks for each time when creating String object in memory(string pool). <br> String literal is available in (string pool)heap or not.If it is available it just returns object reference to increase performance. <br>
-      <br>
-      <img src="https://static.javatpoint.com/core/images/string-pool-in-java.png" />
-      <b>String</b> uses StringBuffer or StringBuilder to be mutable. <br>
-    <h3>StringBuffer</h3>
-    <b>StringBuffer</b> is mutable,thread safe,poor performance. <br>
-    <h3>StringBuilder</h3>
-    <b>StringBuilder</b> is mutable,good performance but not thread safe <br>
-    </p>
-    <a href="https://github.com/sindsubr/java/blob/main/javaprograms/src/main/java/javaprograms/string/StringExample.java">string example program</a>
-    <br>
-    <br>
-    <h2>Thread and Multithreading</h2>
-    <h3>Thread</h3> Thread is a <b>path for execution</b>. <br>
-    <br>
-    <img src="https://static.javatpoint.com/images/java-multithreading.png" height="300" width="300" />
-    <h3>Thread States</h3> Thread states: New,Runnable,Wait/Timely-wait/blocked,Terminated. <br>
-    <br>
-    <h3>Multithreading</h3> Multithreading refers to a process of executing <b>two or more threads simultaneously</b> for maximum utilization of the CPU. <br> A thread in Java is a lightweight process requiring fewer resources to create and share the process resources. <br>
-    <h3>Synchronization</h3> Synchronization is the process of controlling other thread access when execution of current thread. <br>
-    <br>
-    <a href="https://github.com/sindsubr/java/blob/main/javaprograms/src/main/java/javaprograms/threads/EvenOrOddAndSwapNoMultithreading.java">thread example program</a>
-    <h2>OOPS Concepts</h2>
-    <h2>JAVA</h2>
-    <p> Java is a <b>high-level, class-based,platform independent, object-oriented programming language</b> that is designed to have as few implementation dependencies as possible. </p>
-    <br>
-    <h2>Object</h2> A Java object is a <b>member (also called an instance)</b> of a Java class. <br> Each object has an <b>identity, a behavior and a state</b>. <br> he state of an object is stored in fields (variables), while methods (functions) display the object's behavior. <br> Objects are created at runtime from templates, which are also known as classes <br>
-    <h2>Class</h2> A class — in the <b>context</b> of Java — is a template used to create objects and to define object data types and methods. <br> Classes are <b>categories</b>, and Objects are <b>items</b> within each category. <h4>Eg:</h4>
-    <code> Vehicle car; </code>
-    <h2>Encapsulation</h2> Encapsulation in Java is a powerful mechanism for storing the data members and data methods of a class together. <br> It is done in the form of a secure field accessible by only the members of the same class. <br>
-    <br> Encapsulation in Java is the process by which <b>data (variables) and the code that acts upon them (methods) are integrated as a single unit</b>. <br> By encapsulating a class's variables, other classes cannot access them, and only the methods of the class can access them. <br>
-    <h2>Access Modifiers</h2>
-    <ul>
-      <li>
-        <b>public</b>(visibility in entire env)
-      </li>
-      <li>
-        <b>protected</b>(visibility within package)
-      </li>
-      <li>
-        <b>private</b>(visibility within its class)
-      </li>
-    </ul>
-    <h3>Uses:</h3>
-    <ul>
-      <li>Data hiding</li>
-      <li>Flexibility</li>
-      <li>Control and reusability</li>
-      <li>Security</li>
-    </ul>
-    <h2>Polymorphism</h2> Polymorphism means <b>"many forms"</b>, and it occurs when we have many classes that are related to each other by inheritance. <h3>Overloading and Overriding</h3> When the <b>method signature (name and parameters) are the same in the superclass and the child class</b>, it's called overriding. <br> When <b> two or more methods in the same class have the same name but different parameters</b>, it's called overloading. <h2>Inheritance</h2> Inheritance in Java is the method to create a hierarchy between classes by inheriting from other classes. <br> Java Inheritance is transitive - <br> so if Sedan extends Car and Car extends Vehicle, then Sedan is also inherited from the Vehicle class. <br> The Vehicle becomes the superclass of both Car and Sedan. <ul>
-      <li>Single</li>
-      <li>Multilevel</li>
-      <li>Hierarchical</li>
-      <li>Multiple(Not possible with class to class - so <b>Interface</b> introduced) </li>
-    </ul>
-    <h3>Keywords</h3>
-    <b>extends</b> : class inherits class / interface inherits interface <b>implements</b> : class inherits interface / vice versa <h2>Abstraction</h2> Data abstraction is the process of <b>hiding certain details and showing only essential information to the user</b>. <br> Abstraction can be achieved with either abstract classes or interfaces. <br>
-    <br> The <b>abstract</b> keyword is a <i>non-access modifier</i>, used for classes and methods: <ul>
-      <li>
-        <b>Abstract class</b>: is a restricted class that cannot be used to create objects (to access it, it must be inherited from another class). <br> An abstract class can have both abstract and regular methods
-      </li>
-      <li>
-        <b>Abstract method</b>: can only be used in an abstract class, and it does not have a body. <br> The body is provided by the subclass (inherited from).
-      </li>
-    </ul>
-    <h4>Uses</h4> Security <br>
-    <br> It can also acheives through interface. <h3>Difference between Abstract class and Interface</h3> An abstract class allows you to create functionality that subclasses can implement or override. <br> An interface only allows you to define functionality, not implement it but default method allows impl from java 8. <h2>Non access Modifier Keywords</h2>
-    <h3>static</h3> The static variable can be used to refer to the common property of all objects (which is not unique for each object), <br> for example, the company name of employees, college name of students, etc. <br> The static variable gets memory only once in the class area at the time of class loading. <br> Access directly by class no need to create instance/object. <br>
-    <h3>final</h3> The final keyword is a non-access modifier used for classes, attributes and methods, which makes them non-changeable (impossible to inherit or override) <h3>PassByValue and PassByReference</h3> PassByValue refers that the value of variable to be passed while method calling. <br> PassByReference refers that the reference(memory) of variable to be passed while method calling. <br> Java by default supports <b>pass by value</b> for <b>primitive types</b> whereas for <b>objects</b> it is <b>pass by reference</b>. <br>
-    <br>
-    <img src="https://blog.penjee.com/wp-content/uploads/2015/02/pass-by-reference-vs-pass-by-value-animation.gif" />
-  </body>
+b {
+	color: brown;
+}
+</style>
+<title>JAVA Notes</title>
+</head>
+<body>
+	<h1>Java Notes:</h1>
+	<h2>JDK,JRE,JVM</h2>
+	<a
+		href="https://beginnersbook.com/2022/06/jdk-vs-jre-vs-jvm-difference-between-them/">diff
+		b/w jdk,jvm,jre</a>
+	<img src="https://beginnersbook.com/wp-content/uploads/2013/05/jdk.jpg" />
+	<h3>JDK: Java Development Kit</h3>
+	<ol>
+		<li>
+			<ul>
+				<li><b>Compiler:</b> To create .class(byte codes) from the
+					.java file</li>
+				<li><b>Debugger:</b></li>
+			</ul>
+		</li>
+		<li>package of Tools to develop java programs</li>
+	</ol>
+	<h3>JRE: Java Runtime Environment</h3>
+	<ol>
+		<li>
+			<ul>
+				<li>Java class libraries</li>
+				<li>ClassLoader and Byte code verification</li>
+			</ul>
+		</li>
+		<li>package of Tools to run java programs</li>
+		<li>loads compiled code to the memory and connects the code to
+			the appropriate java class libraries</li>
+	</ol>
+	<h3>JVM: Java Virtual Machine</h3>
+	<ol>
+		<li><b>Java Interpreter : </b>To run java programs</li>
+		<li>JVM converts the bytecode into machine code.</li>
+		<li>JVM is platform independent as JVM doesn’t depend on the
+			hardware and operating system of the machine.</li>
+	</ol>
+	<h2>Serialization:</h2>
+	<img
+		src="https://static.javatpoint.com/images/core/java-serialization.png" />
+	<h3>Marker Interface:</h3>
+	Serializable is a marker interface (has no data member and method).
+	<br> It is used to "mark" Java classes so that the objects of
+	these classes may get a certain capability.
+	<br> The
+	<b>Cloneable</b> and
+	<b>Remote</b> are also Marker interfaces.
+	<br> It is used to
+	<b>deliver type information at runtime to the JVM</b> so that it can
+	take some action based on the information received
+	<br>
+	<h2>Serialization and DeSerialization:</h2>
+	The Serializable interface must be implemented by the class whose
+	object needs to be persisted.
+	<br> The
+	<b>String class and all the wrapper classes</b> implement the
+	java.io.Serializable interface by default.
+	<br>
+	<h3>ObjectOutputStream class</h3>
+	<p>The ObjectOutputStream class is used to write primitive data
+		types, and Java objects to an OutputStream. Only objects that support
+		the java.io.Serializable interface can be written to streams.</p>
+	<h3>ObjectInputStream class</h3>
+	<p>An ObjectInputStream deserializes objects and primitive data
+		written using an ObjectOutputStream.</p>
+	<a
+		href="https://github.com/sindsubr/sindsubr.github.io/blob/main/javaprograms/src/main/java/javaprograms/SerializationExample.java">serialization
+		java program example</a>
+	<h2>String in Java</h2>
+	<h3>String</h3>
+	<p>
+		String is <b>immutable</b> and so you have to assign again to store
+		the result back to string variable after performing operations like <b>strcmp,strcpy</b>
+		etc., <br> Literals saved in <b>StringPool</b> in java heap
+		memory. <br> JVM checks for each time when creating String object
+		in memory(string pool). <br> String literal is available in
+		(string pool)heap or not.If it is available it just returns object
+		reference to increase performance. <br> <br> <img
+			src="https://static.javatpoint.com/core/images/string-pool-in-java.png" />
+		<b>String</b> uses StringBuffer or StringBuilder to be mutable. <br>
+	<h3>StringBuffer</h3>
+	<b>StringBuffer</b> is mutable,thread safe,poor performance.
+	<br>
+	<h3>StringBuilder</h3>
+	<b>StringBuilder</b> is mutable,good performance but not thread safe
+	<br>
+	</p>
+	<a
+		href="https://github.com/sindsubr/java/blob/main/javaprograms/src/main/java/javaprograms/string/StringExample.java">string
+		example program</a>
+	<br>
+	<br>
+	<h2>Thread and Multithreading</h2>
+	<h3>Thread</h3>
+	Thread is a
+	<b>path for execution</b>.
+	<br>
+	<br>
+	<img src="https://static.javatpoint.com/images/java-multithreading.png"
+		height="300" width="300" />
+	<h3>Thread States</h3>
+	Thread states: New,Runnable,Wait/Timely-wait/blocked,Terminated.
+	<br>
+	<br>
+	<h3>Multithreading</h3>
+	Multithreading refers to a process of executing
+	<b>two or more threads simultaneously</b> for maximum utilization of
+	the CPU.
+	<br> A thread in Java is a lightweight process requiring fewer
+	resources to create and share the process resources.
+	<br>
+	<h3>Synchronization</h3>
+	Synchronization is the process of controlling other thread access when
+	execution of current thread.
+	<br>
+	<br>
+	<a
+		href="https://github.com/sindsubr/java/blob/main/javaprograms/src/main/java/javaprograms/threads/EvenOrOddAndSwapNoMultithreading.java">thread
+		example program</a>
+	<h2>OOPS Concepts</h2>
+	<h2>JAVA</h2>
+	<p>
+		Java is a <b>high-level, class-based,platform independent,
+			object-oriented programming language</b> that is designed to have as few
+		implementation dependencies as possible.
+	</p>
+	<br>
+	<h2>Object</h2>
+	A Java object is a
+	<b>member (also called an instance)</b> of a Java class.
+	<br> Each object has an
+	<b>identity, a behavior and a state</b>.
+	<br> he state of an object is stored in fields (variables), while
+	methods (functions) display the object's behavior.
+	<br> Objects are created at runtime from templates, which are also
+	known as classes
+	<br>
+	<h2>Class</h2>
+	A class — in the
+	<b>context</b> of Java — is a template used to create objects and to
+	define object data types and methods.
+	<br> Classes are
+	<b>categories</b>, and Objects are
+	<b>items</b> within each category.
+	<h4>Eg:</h4>
+	<code> Vehicle car; </code>
+	<h2>Encapsulation</h2>
+	Encapsulation in Java is a powerful mechanism for storing the data
+	members and data methods of a class together.
+	<br> It is done in the form of a secure field accessible by only
+	the members of the same class.
+	<br>
+	<br> Encapsulation in Java is the process by which
+	<b>data (variables) and the code that acts upon them (methods) are
+		integrated as a single unit</b>.
+	<br> By encapsulating a class's variables, other classes cannot
+	access them, and only the methods of the class can access them.
+	<br>
+	<h2>Access Modifiers</h2>
+	<ul>
+		<li><b>public</b>(visibility in entire env)</li>
+		<li><b>protected</b>(visibility within package)</li>
+		<li><b>private</b>(visibility within its class)</li>
+	</ul>
+	<h3>Uses:</h3>
+	<ul>
+		<li>Data hiding</li>
+		<li>Flexibility</li>
+		<li>Control and reusability</li>
+		<li>Security</li>
+	</ul>
+	<h2>Polymorphism</h2>
+	Polymorphism means
+	<b>"many forms"</b>, and it occurs when we have many classes that are
+	related to each other by inheritance.
+	<h3>Overloading and Overriding</h3>
+	When the
+	<b>method signature (name and parameters) are the same in the
+		superclass and the child class</b>, it's called overriding.
+	<br> When
+	<b> two or more methods in the same class have the same name but
+		different parameters</b>, it's called overloading.
+	<h2>Inheritance</h2>
+	Inheritance in Java is the method to create a hierarchy between classes
+	by inheriting from other classes.
+	<br> Java Inheritance is transitive -
+	<br> so if Sedan extends Car and Car extends Vehicle, then Sedan
+	is also inherited from the Vehicle class.
+	<br> The Vehicle becomes the superclass of both Car and Sedan.
+	<ul>
+		<li>Single</li>
+		<li>Multilevel</li>
+		<li>Hierarchical</li>
+		<li>Multiple(Not possible with class to class - so <b>Interface</b>
+			introduced)
+		</li>
+	</ul>
+	<h3>Keywords</h3>
+	<b>extends</b> : class inherits class / interface inherits interface
+	<b>implements</b> : class inherits interface / vice versa
+	<h2>Abstraction</h2>
+	Data abstraction is the process of
+	<b>hiding certain details and showing only essential information to
+		the user</b>.
+	<br> Abstraction can be achieved with either abstract classes or
+	interfaces.
+	<br>
+	<br> The
+	<b>abstract</b> keyword is a
+	<i>non-access modifier</i>, used for classes and methods:
+	<ul>
+		<li><b>Abstract class</b>: is a restricted class that cannot be
+			used to create objects (to access it, it must be inherited from
+			another class). <br> An abstract class can have both abstract
+			and regular methods</li>
+		<li><b>Abstract method</b>: can only be used in an abstract
+			class, and it does not have a body. <br> The body is provided by
+			the subclass (inherited from).</li>
+	</ul>
+	<h4>Uses</h4>
+	Security
+	<br>
+	<br> It can also acheives through interface.
+	<h3>Difference between Abstract class and Interface</h3>
+	An abstract class allows you to create functionality that subclasses
+	can implement or override.
+	<br> An interface only allows you to define functionality, not
+	implement it but default method allows impl from java 8.
+	<h2>Non access Modifier Keywords</h2>
+	<h3>static</h3>
+	The static variable can be used to refer to the common property of all
+	objects (which is not unique for each object),
+	<br> for example, the company name of employees, college name of
+	students, etc.
+	<br> The static variable gets memory only once in the class area
+	at the time of class loading.
+	<br> Access directly by class no need to create instance/object.
+	<br>
+	<h3>final</h3>
+	The final keyword is a non-access modifier used for classes, attributes
+	and methods, which makes them non-changeable (impossible to inherit or
+	override)
+	<h2>PassByValue and PassByReference</h2>
+	PassByValue refers that the value of variable to be passed while method
+	calling.
+	<br> PassByReference refers that the reference(memory) of variable
+	to be passed while method calling.
+	<br> Java by default supports
+	<b>pass by value</b> for
+	<b>primitive types</b> whereas for
+	<b>objects</b> it is
+	<b>pass by reference</b>.
+	<br>
+	<br>
+	<img
+		src="https://blog.penjee.com/wp-content/uploads/2015/02/pass-by-reference-vs-pass-by-value-animation.gif" />
+</body>
 </html>
