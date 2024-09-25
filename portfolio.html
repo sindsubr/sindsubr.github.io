@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinduja Subramanian's Video Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background-color: #282828;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 5px 10px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        .search-bar button {
+            padding: 6px 12px;
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .content {
+            display: flex;
+            margin: 20px;
+        }
+        .main-content {
+            flex: 3;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar {
+            flex: 1;
+            margin-left: 20px;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .video-title {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .description {
+            margin-top: 1em;
+            color: #666;
+        }
+        .fullscreen-button {
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .fullscreen-button:hover {
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">MyPortfolio</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search...">
+            <button>Search</button>
+        </div>
+    </header>
+    <div class="content">
+        <div class="main-content">
+            <video id="portfolioVideo" controls>
+                <source src="https://raw.githubusercontent.com/sindsubr/sindsubr.github.io/main/Sinduja%20SubramanianPortfolioAnimated.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="video-title">Featured Video</div>
+            <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
+            <div class="description">
+                <p>Sinduja Subramanian's Portfolio.</p>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="video-title">More Videos</div>
+            <ul>
+                <li><a href="#">Sinduja Subramanian's Portfolio</a></li>
+                           </ul>
+        </div>
+    </div>
+
+    <script>
+        function toggleFullScreen() {
+            const video = document.getElementById('portfolioVideo');
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.mozRequestFullScreen) { // Firefox
+                video.mozRequestFullScreen();
+            } else if (video.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) { // IE/Edge
+                video.msRequestFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>
