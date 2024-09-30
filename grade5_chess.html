@@ -21,6 +21,14 @@
         .lesson {
             margin-bottom: 40px;
         }
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -29,15 +37,22 @@
     <!-- Lesson 1: Introduction to Chess -->
     <div class="lesson">
         <h2>Lesson 1: Introduction to Chess</h2>
-        <p>Chess is a two-player strategy game that is played on an 8x8 board. Each player controls 16 pieces with the objective to checkmate the opponent's king.</p>
+        <p>Chess is a two-player strategy game played on an 8x8 board. Each player controls 16 pieces with the objective to checkmate the opponent's king.</p>
         <h3>Objective:</h3>
-        <p>The goal of chess is to put the opponent's king in a position where it cannot escape, which is called checkmate.</p>
+        <p>The goal of chess is to put the opponent's king in a position where it cannot escape, called checkmate.</p>
         <h3>The Chessboard:</h3>
         <ul>
             <li>The chessboard has 64 squares, alternating between light and dark colors.</li>
+            <li>The squares are divided into <strong>ranks</strong> (horizontal rows, numbered 1 to 8) and <strong>files</strong> (vertical columns, labeled a to h).</li>
             <li>The pieces are set up with the white square at the bottom-right corner for both players.</li>
         </ul>
         <p>In this lesson, we will explore how the board is set up and the goal of the game.</p>
+
+        <div class="image-container">
+            <h3>Example of a Chessboard:</h3>
+            <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/ColinStapczynski/phprnyp9x.png" alt="Chessboard Example" height="300" width="300">
+            <p>Notice the ranks (1-8) and files (a-h) for identifying each square.</p>
+        </div>
     </div>
 
     <!-- Lesson 2: The Chess Pieces -->
@@ -52,6 +67,12 @@
             <li><strong>Knight:</strong> Moves in an "L" shape: two squares in one direction and then one square perpendicular.</li>
             <li><strong>Pawn:</strong> Moves forward one square but captures diagonally. On the first move, it can move two squares forward.</li>
         </ul>
+
+        <div class="image-container">
+            <h3>Chess Piece Setup:</h3>
+            <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/CHESScom/phphK5JVu.png" alt="Chess Piece Setup" height="300" width="300">
+            <p>How the chess pieces are set up at the beginning of the game.</p>
+        </div>
     </div>
 
     <!-- Lesson 3: Setting up the Chessboard -->
@@ -59,12 +80,12 @@
         <h2>Lesson 3: Setting up the Chessboard</h2>
         <p>In this lesson, we'll learn how to set up the chessboard properly.</p>
         <ul>
-            <li>Place the rooks in the corners of the board.</li>
-            <li>Next to the rooks, place the knights.</li>
-            <li>Next to the knights, place the bishops.</li>
-            <li>The queen goes on her color (white queen on white, black queen on black).</li>
-            <li>The king goes on the last square of the first row.</li>
-            <li>Place all pawns on the second row in front of the other pieces.</li>
+            <li>Place the rooks in the corners of the board on squares a1, h1 (for White), and a8, h8 (for Black).</li>
+            <li>Next to the rooks, place the knights on b1, g1 (for White), and b8, g8 (for Black).</li>
+            <li>Next to the knights, place the bishops on c1, f1 (for White), and c8, f8 (for Black).</li>
+            <li>The queen goes on her color: d1 for White and d8 for Black.</li>
+            <li>The king goes on the remaining square: e1 for White and e8 for Black.</li>
+            <li>Place all pawns on the second rank (row 2 for White, row 7 for Black).</li>
         </ul>
     </div>
 
@@ -74,7 +95,7 @@
         <p>Here are the basic rules you need to follow in a game of chess:</p>
         <ul>
             <li>White always goes first.</li>
-            <li>The goal is to checkmate the opponent's king, which means the king is under threat and cannot escape.</li>
+            <li>The goal is to checkmate the opponent's king, meaning the king is under threat and cannot escape.</li>
             <li>Pawns can be promoted to any piece (except a king) when they reach the other side of the board.</li>
             <li>Pieces capture by landing on an opponent’s piece (except for pawns, which capture diagonally).</li>
         </ul>
@@ -90,7 +111,7 @@
         <h3>Checkmate:</h3>
         <p>The king is in checkmate if it is in check and has no legal moves to escape.</p>
         <h3>Stalemate:</h3>
-        <p>A game ends in a draw if there are no legal moves left, and the king is not in check. This is called a stalemate.</p>
+        <p>A game ends in a draw if there are no legal moves left and the king is not in check. This is called a stalemate.</p>
     </div>
 
     <!-- Lesson 6: Special Moves (Castling, En Passant, Promotion) -->
@@ -110,22 +131,21 @@
         <p>Let’s learn some basic tactics to help you win more games:</p>
         <ul>
             <li><strong>Fork:</strong> A single piece attacks two or more of the opponent’s pieces at the same time.</li>
+            <div class="image-container">
+                <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/Shashinottharoor/phpHtx2lD.png" alt="Fork Example" height="300" width="300">
+                <p>Example of a fork, where one piece attacks two pieces at once.</p>
+            </div>
             <li><strong>Pin:</strong> A piece is forced to stay in place because moving it would expose a more valuable piece (like the king or queen) behind it.</li>
-            <li><strong>Skewer:</strong> A more valuable piece is forced to move, exposing a less valuable piece behind it to attack.</li>
+            <div class="image-container">
+                <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/Shashinottharoor/php7mGAG1.png" alt="Pin Example" height="300" width="300">
+                <p>Example of a pin, where moving a piece would expose the queen.</p>
+            </div>
+            <li><strong>Skewer:</strong> A piece is attacked, and when it moves, a more valuable piece behind it is captured.</li>
+            <div class="image-container">
+                <img src="https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/Shashinottharoor/phpurjgJW.png" alt="Skewer Example" height="300" width="300">
+                <p>Example of a skewer, where the more valuable piece is behind the attacked piece.</p>
+            </div>
         </ul>
-    </div>
-
-    <!-- Lesson 8: How to Improve Your Game -->
-    <div class="lesson">
-        <h2>Lesson 8: How to Improve Your Game</h2>
-        <p>Here are some tips to help you get better at chess:</p>
-        <ul>
-            <li>Practice regularly by playing against friends or on chess apps.</li>
-            <li>Learn from your mistakes by reviewing your games after you finish them.</li>
-            <li>Study basic chess openings and endgames to improve your strategy.</li>
-            <li>Watch chess videos or read books to learn new tactics and techniques.</li>
-        </ul>
-        <p>Keep practicing, and you'll see yourself getting better in no time!</p>
     </div>
 
 </body>
