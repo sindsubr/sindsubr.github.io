@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Lessons for Grade 5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .lesson {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            padding: 20px;
+        }
+        .lesson h2 {
+            color: #4CAF50;
+        }
+        .lesson p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .lesson img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .quiz {
+            background-color: #e0f7fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .quiz h3 {
+            color: #00796b;
+        }
+        .quiz label {
+            display: block;
+            margin: 10px 0;
+        }
+        .quiz button {
+            background-color: #00796b;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .quiz button:hover {
+            background-color: #004d40;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Chess Lessons for Grade 5</h1>
+        <p>Interactive and Fun Chess Learning</p>
+    </div>
+    <div class="content">
+        <!-- Lesson 1 -->
+        <div class="lesson">
+            <h2>Lesson 1: Introduction to Chess</h2>
+            <p>Welcome to the world of chess! In this lesson, you will learn about the chessboard, the pieces, and the basic rules of the game.</p>
+            <img src="chessboard.png" alt="Chessboard">
+            <p>The chessboard is an 8x8 grid of squares. Each player starts with 16 pieces: one king, one queen, two rooks, two knights, two bishops, and eight pawns.</p>
+            <p>The objective of the game is to checkmate your opponent's king, which means the king is in a position to be captured and there is no way to move the king to safety.</p>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q1">1. How many squares are on a chessboard?</label>
+                    <input type="radio" id="q1a" name="q1" value="32">
+                    <label for="q1a">32</label><br>
+                    <input type="radio" id="q1b" name="q1" value="64">
+                    <label for="q1b">64</label><br>
+                    <input type="radio" id="q1c" name="q1" value="128">
+                    <label for="q1c">128</label><br>
+                    <button type="button" onclick="checkAnswer1()">Submit</button>
+                </form>
+                <p id="result1"></p>
+            </div>
+        </div>
+        <!-- Lesson 2 -->
+        <div class="lesson">
+            <h2>Lesson 2: How the Pieces Move</h2>
+            <p>In this lesson, you will learn how each piece moves on the chessboard.</p>
+            <ul>
+                <li><b>King:</b> Moves one square in any direction.</li>
+                <li><b>Queen:</b> Moves any number of squares in any direction.</li>
+                <li><b>Rook:</b> Moves any number of squares horizontally or vertically.</li>
+                <li><b>Bishop:</b> Moves any number of squares diagonally.</li>
+                <li><b>Knight:</b> Moves in an "L" shape: two squares in one direction and then one square perpendicular.</li>
+                <li><b>Pawn:</b> Moves one square forward but captures diagonally. Pawns can move two squares forward on their first move.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q2">1. Which piece moves in an "L" shape?</label>
+                    <input type="radio" id="q2a" name="q2" value="King">
+                    <label for="q2a">King</label><br>
+                    <input type="radio" id="q2b" name="q2" value="Queen">
+                    <label for="q2b">Queen</label><br>
+                    <input type="radio" id="q2c" name="q2" value="Knight">
+                    <label for="q2c">Knight</label><br>
+                    <button type="button" onclick="checkAnswer2()">Submit</button>
+                </form>
+                <p id="result2"></p>
+            </div>
+        </div>
+        <!-- Lesson 3 -->
+        <div class="lesson">
+            <h2>Lesson 3: Basic Strategies</h2>
+            <p>Understanding basic strategies will help you play better chess. Here are some key points:</p>
+            <ul>
+                <li><b>Control the center:</b> Place your pieces to control the central squares.</li>
+                <li><b>Develop your pieces:</b> Move your knights and bishops out early to active squares.</li>
+                <li><b>King safety:</b> Castle early to protect your king and connect your rooks.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q3">1. Why is it important to control the center in chess?</label>
+                    <input type="radio" id="q3a" name="q3" value="To protect the king">
+                    <label for="q3a">To protect the king</label><br>
+                    <input type="radio" id="q3b" name="q3" value="To move pieces easily">
+                    <label for="q3b">To move pieces easily</label><br>
+                    <input type="radio" id="q3c" name="q3" value="To control key squares">
+                    <label for="q3c">To control key squares</label><br>
+                    <button type="button" onclick="checkAnswer3()">Submit</button>
+                </form>
+                <p id="result3"></p>
+            </div>
+        </div>
+        <!-- Lesson 4 -->
+        <div class="lesson">
+            <h2>Lesson 4: Tactics and Checkmates</h2>
+            <p>Learn about common chess tactics and checkmating patterns.</p>
+            <ul>
+                <li><b>Fork:</b> Attacking two pieces at once.</li>
+                <li><b>Pin:</b> Preventing a piece from moving because it would expose a more valuable piece.</li>
+                <li><b>Skewer:</b> Attacking a valuable piece so it moves and exposes a less valuable piece behind it.</li>
+            </ul>
+            <p>Common checkmating patterns include:</p>
+            <ul>
+                <li><b>Back rank mate:</b> Checkmate with a rook or queen on the opponent's back rank.</li>
+                <li><b>Smothered mate:</b> Checkmate where the knight delivers mate and the king is surrounded by its own pieces.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q4">1. What is a fork in chess?</label>
+                    <input type="radio" id="q4a" name="q4" value="Attacking two pieces at once">
+                    <label for="q4a">Attacking two pieces at once</label><br>
+                    <input type="radio" id="q4b" name="q4" value="Checkmating with a knight">
+                    <label for="q4b">Checkmating with a knight</label><br>
+                    <input type="radio" id="q4c" name="q4" value="Exposing a piece">
+                    <label for="q4c">Exposing a piece</label><br>
+                    <button type="button" onclick="checkAnswer4()">Submit</button>
+                </form>
+                <p id="result4"></p>
+            </div>
+        </div>
+        <!-- Lesson 5 -->
+        <div class="lesson">
+            <h2>Lesson 5: Pawn Structure and Strategy</h2>
+            <p>Pawns are the soul of chess. Understanding pawn structure is crucial for a strong game.</p>
+            <ul>
+                <li><b>Isolated pawn:</b> A pawn with no friendly pawns on adjacent files.</li>
+                <li><b>Doubled pawns:</b> Two pawns of the same color on the same file.</li>
+                <li><b>Passed pawn:</b> A pawn with no opposing pawns blocking its way to promotion.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q5">1. What is a passed pawn?</label>
+                    <input type="radio" id="q5a" name="q5" value="A pawn that has no opposing pawns blocking its way to promotion">
+                    <label for="q5a">A pawn that has no opposing pawns blocking its way to promotion</label><br>
+                    <input type="radio" id="q5b" name="q5" value="A pawn that is protected by other pawns">
+                    <label for="q5b">A pawn that is protected by other pawns</label><br>
+                    <input type="radio" id="q5c" name="q5" value="Two pawns on the same file">
+                    <label for="q5c">Two pawns on the same file</label><br>
+                    <button type="button" onclick="checkAnswer5()">Submit</button>
+                </form>
+                <p id="result5"></p>
+            </div>
+        </div>
+        <!-- Lesson 6 -->
+        <div class="lesson">
+            <h2>Lesson 6: Middle Game Planning</h2>
+            <p>The middle game is where most of the action happens. Plan your strategy carefully.</p>
+            <ul>
+                <li><b>Piece activity:</b> Place your pieces on active squares where they control important areas.</li>
+                <li><b>King safety:</b> Always be mindful of your king's safety.</li>
+                <li><b>Attack and defense:</b> Balance attacking your opponent and defending your own position.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q6">1. Why is piece activity important in the middle game?</label>
+                    <input type="radio" id="q6a" name="q6" value="To control important areas of the board">
+                    <label for="q6a">To control important areas of the board</label><br>
+                    <input type="radio" id="q6b" name="q6" value="To protect the king">
+                    <label for="q6b">To protect the king</label><br>
+                    <input type="radio" id="q6c" name="q6" value="To attack pawns">
+                    <label for="q6c">To attack pawns</label><br>
+                    <button type="button" onclick="checkAnswer6()">Submit</button>
+                </form>
+                <p id="result6"></p>
+            </div>
+        </div>
+        <!-- Lesson 7 -->
+        <div class="lesson">
+            <h2>Lesson 7: Endgame Basics</h2>
+            <p>The endgame is the final phase of the game. Knowing endgame principles can help you win or save a game.</p>
+            <ul>
+                <li><b>King activity:</b> In the endgame, the king becomes a powerful piece. Use it actively.</li>
+                <li><b>Pawn promotion:</b> Try to promote your pawns to queens.</li>
+                <li><b>Opposition:</b> Control key squares to prevent your opponent's king from advancing.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q7">1. What is the key principle in the endgame?</label>
+                    <input type="radio" id="q7a" name="q7" value="King activity">
+                    <label for="q7a">King activity</label><br>
+                    <input type="radio" id="q7b" name="q7" value="Piece development">
+                    <label for="q7b">Piece development</label><br>
+                    <input type="radio" id="q7c" name="q7" value="Pawn structure">
+                    <label for="q7c">Pawn structure</label><br>
+                    <button type="button" onclick="checkAnswer7()">Submit</button>
+                </form>
+                <p id="result7"></p>
+            </div>
+        </div>
+        <!-- Lesson 8 -->
+        <div class="lesson">
+            <h2>Lesson 8: Putting It All Together</h2>
+            <p>In this final lesson, we'll review all the concepts and put them into practice with some sample games and analysis.</p>
+            <ul>
+                <li>Review the key points from each lesson.</li>
+                <li>Analyze sample games to see the concepts in action.</li>
+                <li>Practice playing games to apply what you've learned.</li>
+            </ul>
+            <div class="quiz">
+                <h3>Quiz</h3>
+                <form>
+                    <label for="q8">1. What is the main goal of chess?</label>
+                    <input type="radio" id="q8a" name="q8" value="To checkmate the opponent's king">
+                    <label for="q8a">To checkmate the opponent's king</label><br>
+                    <input type="radio" id="q8b" name="q8" value="To capture all the opponent's pieces">
+                    <label for="q8b">To capture all the opponent's pieces</label><br>
+                    <input type="radio" id="q8c" name="q8" value="To control the center">
+                    <label for="q8c">To control the center</label><br>
+                    <button type="button" onclick="checkAnswer8()">Submit</button>
+                </form>
+                <p id="result8"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function checkAnswer1() {
+            const result = document.getElementById('result1');
+            const answer = document.querySelector('input[name="q1"]:checked').value;
+            if (answer == '64') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer2() {
+            const result = document.getElementById('result2');
+            const answer = document.querySelector('input[name="q2"]:checked').value;
+            if (answer == 'Knight') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer3() {
+            const result = document.getElementById('result3');
+            const answer = document.querySelector('input[name="q3"]:checked').value;
+            if (answer == 'To control key squares') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer4() {
+            const result = document.getElementById('result4');
+            const answer = document.querySelector('input[name="q4"]:checked').value;
+            if (answer == 'Attacking two pieces at once') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer5() {
+            const result = document.getElementById('result5');
+            const answer = document.querySelector('input[name="q5"]:checked').value;
+            if (answer == 'A pawn that has no opposing pawns blocking its way to promotion') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer6() {
+            const result = document.getElementById('result6');
+            const answer = document.querySelector('input[name="q6"]:checked').value;
+            if (answer == 'To control important areas of the board') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer7() {
+            const result = document.getElementById('result7');
+            const answer = document.querySelector('input[name="q7"]:checked').value;
+            if (answer == 'King activity') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+        function checkAnswer8() {
+            const result = document.getElementById('result8');
+            const answer = document.querySelector('input[name="q8"]:checked').value;
+            if (answer == 'To checkmate the opponent\'s king') {
+                result.textContent = 'Correct!';
+                result.style.color = 'green';
+            } else {
+                result.textContent = 'Try again!';
+                result.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
