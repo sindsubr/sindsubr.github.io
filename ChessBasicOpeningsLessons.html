@@ -36,13 +36,40 @@
             max-width: 500px;
             border-radius: 10px;
             margin-top: 10px;
+            display: none;
         }
         #content {
             display: none;
         }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        label {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+        }
+        .reveal-button {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reveal-button:hover {
+            background-color: #16a085;
+        }
     </style>
     <script>
-        var staticPassword = "ilovechess"; // Replace with your desired password
+        var staticPassword = "sindsubr"; // Replace with your desired password
 
         function checkPassword() {
             var enteredPassword = prompt("Enter the password:");
@@ -52,6 +79,11 @@
             } else {
                 alert("Incorrect password!");
             }
+        }
+
+        function revealImage(id) {
+            var img = document.getElementById(id);
+            img.style.display = img.style.display === "none" ? "block" : "none";
         }
     </script>
 </head>
@@ -65,49 +97,126 @@
         <h1>Chess Basic Openings</h1>
         
         <h2>White Openings</h2>
-        <h3>e4 Openings (King's Pawn Openings)</h3>
         <p>The most popular opening move for White, leading to open and dynamic positions.</p>
+
+
+        <h3>e4 Openings (King's Pawn Openings)</h3>
+       <p>The most popular opening move for White, leading to open and dynamic positions.</p>
+
+        
         <h4>1. The Italian Greco Opening</h4>
+        <label for="italianGrecoPGN">PGN Notes:</label>
+        <textarea id="italianGrecoPGN" placeholder="Enter PGN, e.g., 1.e4 e5"></textarea>
+        
         <h4>2. The Spanish Defense: Ruy Lopez Opening</h4>
+        <label for="ruyLopezPGN">PGN Notes:</label>
+        <textarea id="ruyLopezPGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.Nf3 Nc6"></textarea>
+        
         <h4>3. The Scotch</h4>
+        <label for="scotchPGN">PGN Notes:</label>
+        <textarea id="scotchPGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.Nf3 Nc6 3.d4 exd4"></textarea>
+        
         <h4>4. The Scholar's Mate</h4>
+        <label for="scholarsMatePGN">PGN Notes:</label>
+        <textarea id="scholarsMatePGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.Qh5 Nc6 3.Bc4"></textarea>
         
         <h3>d4 Openings (Queen's Pawn Openings)</h3>
-        <p>A more strategic approach, leading to closed and positional games.</p>
+        <p>The most popular opening move for White, leading to open and dynamic positions.</p>
+
         <h4>1. The London System</h4>
+        <label for="londonSystemPGN">PGN Notes:</label>
+        <textarea id="londonSystemPGN" placeholder="Enter PGN, e.g., 1.d4 d5 2.Nf3 Nf6 3.Bf4"></textarea>
+        
         <h4>2. Queen's Gambit Accepted</h4>
+        <label for="queensGambitPGN">PGN Notes:</label>
+        <textarea id="queensGambitPGN" placeholder="Enter PGN, e.g., 1.d4 d5 2.c4 dxc4"></textarea>
         
         <h2>Black Openings</h2>
+        <p>The most popular opening move for White, leading to open and dynamic positions.</p>
+
+        
         <h4>1. Sicilian Defense</h4>
-        <p>A popular response to 1.e4, leading to rich counterattacking possibilities.</p>
+        <textarea placeholder="Enter your notes for Sicilian Defense"></textarea>
+        <label for="sicilianDefensePGN">PGN Notes:</label>
+        <textarea id="sicilianDefensePGN" placeholder="Enter PGN, e.g., 1.e4 c5"></textarea>
         
         <h3>Traditional Openings</h3>
-        <p>These focus on fundamental principles such as center control and piece development. Playing against white openings</p>
+        <p>The most popular opening move for White, leading to open and dynamic positions.</p>
+
+        
         <h4>2. Playing Against The Scotch</h4>
+        <label for="againstScotchPGN">PGN Notes:</label>
+        <textarea id="againstScotchPGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.d4 exd4"></textarea>
+        
         <h4>3. Playing Against The Italian</h4>
+        <label for="againstItalianPGN">PGN Notes:</label>
+        <textarea id="againstItalianPGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5"></textarea>
+        
         <h4>4. Playing Against e4-Black Vs Two Knights</h4>
+        <label for="againstTwoKnightsPGN">PGN Notes:</label>
+        <textarea id="againstTwoKnightsPGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.Nf3 Nc6 3.Bc4 Nf6"></textarea>
+        
         <h4>5. Playing Against Scholar's Mate</h4>
+        <label for="againstScholarsMatePGN">PGN Notes:</label>
+        <textarea id="againstScholarsMatePGN" placeholder="Enter PGN, e.g., 1.e4 e5 2.Qh5 Nc6 3.Bc4"></textarea>
+        
         <h4>6. Queen's Gambit Declined</h4>
+        <label for="queensGambitDeclinedPGN">PGN Notes:</label>
+        <textarea id="queensGambitDeclinedPGN" placeholder="Enter PGN, e.g., 1.d4 d5 2.c4 e6"></textarea>
+        
         <h4>7. Playing Against London System</h4>
-
+        <label for="againstLondonPGN">PGN Notes:</label>
+        <textarea id="againstLondonPGN" placeholder="Enter PGN, e.g., 1.d4 d5 2.Nf3 Nf6 3.Bf4"></textarea>
+        
         <h3>Setup Based Openings</h3>
-        <p>These involve setting up pieces in a particular structure rather than following strict move orders.</p>
-        <h4>8. The King's Indian Pric Setup (The Pir Defense)</h4>
-        <h4>9. The Dutch Setup</h4>
+        <p>The most popular opening move for White, leading to open and dynamic positions.</p>
 
+        
+        <h4>8. The King's Indian Pric Setup (The Pir Defense)</h4>
+        <label for="kingIndianPGN">PGN Notes:</label>
+        <textarea id="kingIndianPGN" placeholder="Enter PGN, e.g., 1.d4 Nf6 2.c4 g6"></textarea>
+        
+        <h4>9. The Dutch Setup</h4>
+        <label for="dutchSetupPGN">PGN Notes:</label>
+        <textarea id="dutchSetupPGN" placeholder="Enter PGN, e.g., 1.d4 f5"></textarea>
+        
         <h3>Building Blocks Openings</h3>
-        <p>Includes openings like the French Defense and the Caro-Kann.</p>
+       <p>The most popular opening move for White, leading to open and dynamic positions.</p>
+
+        
         <h4>10. The Caro-Kann Defense</h4>
+        <label for="caroKannPGN">PGN Notes:</label>
+        <textarea id="caroKannPGN" placeholder="Enter PGN, e.g., 1.e4 c6"></textarea>
 
         <h4>1. Caro-Kann: Classical Variation</h4>
-        <p>A solid response by Black, aiming for long-term strategic play.</p>
-        <img src="D:\Chess\Openings\Caro-Kann Defense Classical Variation.jpeg" alt="Caro-Kann Defense Classical Variation">
-
+        <textarea placeholder="Enter your notes for Caro-Kann: Classical Variation"></textarea>
+        <img id="caroKannClassical" src="D:\Chess\Openings\Caro-Kann Defense Classical Variation.jpeg" alt="Caro-Kann Defense Classical Variation">
+        <button class="reveal-button" onclick="revealImage('caroKannClassical')">Reveal Image</button>
+        
         <h4>2. Caro-Kann: Advance Variation</h4>
-        <p>White gains space in the center early on, leading to sharp play.</p>
-        <img src="D:\Chess\Openings\Caro-Kann Defense Advanced Variation.jpeg" alt="Caro-Kann Defense Advance Variation">
-
+        <textarea placeholder="Enter your notes for Caro-Kann: Advance Variation"></textarea>
+        <img id="caroKannAdvance" src="D:\Chess\Openings\Caro-Kann Defense Advanced Variation.jpeg" alt="Caro-Kann Defense Advance Variation">
+        <button class="reveal-button" onclick="revealImage('caroKannAdvance')">Reveal Image</button>
+        
+        <h4>2. Caro-Kann: Exchange Variation</h4>
+        <textarea placeholder="Enter your notes for Caro-Kann: Exchange Variation"></textarea>
+        
         <h4>11. The French Defense</h4>
+        <label for="frenchDefensePGN">PGN Notes:</label>
+        <textarea id="frenchDefensePGN" placeholder="Enter PGN, e.g., 1.e4 e6"></textarea>
+
+        <h4>1. French Defense: Classical Variation</h4>
+        <textarea placeholder="Enter your notes for French Defense: Classical Variation"></textarea>
+        <img id="frenchDefenseClassical" src="D:\Chess\Openings\Caro-Kann Defense Classical Variation.jpeg" alt="Caro-Kann Defense Classical Variation">
+        <button class="reveal-button" onclick="revealImage('frenchDefenseClassical')">Reveal Image</button>
+
+        <h4>2. French Defense: Advance Variation</h4>
+        <textarea placeholder="Enter your notes for French Defense: Advance Variation"></textarea>
+        <img id="frenchDefenseAdvance" src="D:\Chess\Openings\Caro-Kann Defense Advanced Variation.jpeg" alt="Caro-Kann Defense Advance Variation">
+        <button class="reveal-button" onclick="revealImage('frenchDefenseAdvance')">Reveal Image</button>
+
+        <h4>2. French Defense: Exchange Variation</h4>
+        <textarea placeholder="Enter your notes for French Defense: Exchange Variation"></textarea>
     </div>
 </body>
 </html>
