@@ -37,59 +37,77 @@
             border-radius: 10px;
             margin-top: 10px;
         }
+        #content {
+            display: none;
+        }
     </style>
+    <script>
+        var staticPassword = "yourpassword"; // Replace with your desired password
+
+        function checkPassword() {
+            var enteredPassword = prompt("Enter the password:");
+            if (enteredPassword === staticPassword) {
+                document.getElementById("content").style.display = "block";
+                document.getElementById("passwordPrompt").style.display = "none";
+            } else {
+                alert("Incorrect password!");
+            }
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
+    <div id="passwordPrompt">
+        <h2>Please enter the password to access the content</h2>
+        <button onclick="checkPassword()">Submit Password</button>
+    </div>
+
+    <div id="content" class="container">
         <h1>Chess Basic Openings</h1>
         
         <h2>White Openings</h2>
-        <h3> e4 Openings (King's Pawn Openings)</h3>
+        <h3>e4 Openings (King's Pawn Openings)</h3>
         <p>The most popular opening move for White, leading to open and dynamic positions.</p>
-        <h4> 1. The Italian Greco Opening</h4>
-        <h4> 2. The Spanish Defense: Ruy Lopez Opening</h4>
-        <h4> 3. The Scotch</h4>
-        <h4> 4. The Scholar's Mate</h4>
+        <h4>1. The Italian Greco Opening</h4>
+        <h4>2. The Spanish Defense: Ruy Lopez Opening</h4>
+        <h4>3. The Scotch</h4>
+        <h4>4. The Scholar's Mate</h4>
         
-        <h3>d4 Openings (Queens Pawn Openings)</h3>
+        <h3>d4 Openings (Queen's Pawn Openings)</h3>
         <p>A more strategic approach, leading to closed and positional games.</p>
-        <h4> 1. The London System </h4>
-         <h4> 2. Queen's Gambit Accepted</h4>
+        <h4>1. The London System</h4>
+        <h4>2. Queen's Gambit Accepted</h4>
         
         <h2>Black Openings</h2>
-        
-        <h4>1. Sicilian Defense</h3>
+        <h4>1. Sicilian Defense</h4>
         <p>A popular response to 1.e4, leading to rich counterattacking possibilities.</p>
         
         <h3>Traditional Openings</h3>
-          <p>These focus on fundamental principles such as center control and piece development. Playing against white openings</p>
-         <h4> 2. Playing Against The Scotch </h4>
-         <h4> 3. Playing Against The Italian </h4>
-         <h4> 4. Playing Against e4-Black Vs Two Knights </h4>
-         <h4> 5. Playing Against Scholar's Mate </h4>
-         <h4> 6. Queen's Gambit Declined</h4>
-         <h4> 7. Playing Against London System </h4>
-         
-        <h3> Setup Based Openings</h3>
+        <p>These focus on fundamental principles such as center control and piece development. Playing against white openings</p>
+        <h4>2. Playing Against The Scotch</h4>
+        <h4>3. Playing Against The Italian</h4>
+        <h4>4. Playing Against e4-Black Vs Two Knights</h4>
+        <h4>5. Playing Against Scholar's Mate</h4>
+        <h4>6. Queen's Gambit Declined</h4>
+        <h4>7. Playing Against London System</h4>
+
+        <h3>Setup Based Openings</h3>
         <p>These involve setting up pieces in a particular structure rather than following strict move orders.</p>
-         <h4> 8. The King's Indian Pric Setup (The Pir Defense) </h4>
-         <h4> 9. The Dutch Setup </h4>
-        
-        <h3> Building Blocks Openings</h3>
-         <p>Includes openings like the French Defense and the Caro-Kann.</p>
-         <h4> 10.  The Caro-Kann Defense </h4>
+        <h4>8. The King's Indian Pric Setup (The Pir Defense)</h4>
+        <h4>9. The Dutch Setup</h4>
+
+        <h3>Building Blocks Openings</h3>
+        <p>Includes openings like the French Defense and the Caro-Kann.</p>
+        <h4>10. The Caro-Kann Defense</h4>
 
         <h4>1. Caro-Kann: Classical Variation</h4>
         <p>A solid response by Black, aiming for long-term strategic play.</p>
         <img src="D:\Chess\Openings\Caro-Kann Defense Classical Variation.jpeg" alt="Caro-Kann Defense Classical Variation">
-        
+
         <h4>2. Caro-Kann: Advance Variation</h4>
         <p>White gains space in the center early on, leading to sharp play.</p>
         <img src="D:\Chess\Openings\Caro-Kann Defense Advanced Variation.jpeg" alt="Caro-Kann Defense Advance Variation">
-        
-         <h4> 11. The French Defense </h4>
-        
-        
+
+        <h4>11. The French Defense</h4>
     </div>
 </body>
 </html>
