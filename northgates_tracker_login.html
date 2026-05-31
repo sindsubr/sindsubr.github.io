@@ -110,19 +110,11 @@ select:focus,input:focus{border-color:var(--red)}
 .toast.show{opacity:1;transform:translateY(0)}
 .update-flash{position:fixed;top:60px;right:16px;background:#2E7D32;color:#fff;padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;z-index:500;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;display:flex;align-items:center;gap:6px}
 .update-flash.show{opacity:1;transform:translateY(0)}
-
-.login-email{font-size:10px;color:var(--text2);margin-top:-12px;margin-bottom:14px;word-break:break-all}
-.login-note{background:var(--red-light);border:1px solid #ffcdd2;color:var(--red-dark);border-radius:var(--radius-sm);padding:8px 10px;font-size:11px;margin-bottom:14px;text-align:left}
-.login-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
-.login-btn:hover{background:var(--red-dark)}
-.logout-link{background:none;border:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;text-decoration:underline}
-.logout-link:hover{color:var(--red)}
-.locked{opacity:.55;pointer-events:none;filter:grayscale(.4)}
 @media(max-width:700px){.board{grid-template-columns:1fr}.q-summ{grid-template-columns:repeat(2,1fr)}.f2{grid-template-columns:1fr}.topbar h1{display:none}.hstat-l{display:none}.search-input{width:110px}}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app" style="display:none">
 
 <div class="topbar">
   <div class="topbar-left">
@@ -135,7 +127,7 @@ select:focus,input:focus{border-color:var(--red)}
     <div class="hstat"><div class="hstat-n" id="h-open">0</div><div class="hstat-l">Open</div></div>
     <div class="hstat"><div class="hstat-n">49</div><div class="hstat-l">Quotes</div></div>
     <div class="hstat"><div class="hstat-n">9.65M</div><div class="hstat-l">AED Pipeline</div></div>
-    <div class="user-pill" onclick="changeUser()"><i class="ti ti-user" style="font-size:13px"></i><span id="current-user-label">Select</span></div>
+    <div class="user-pill" onclick="changeUser()"><i class="ti ti-user" style="font-size:13px"></i><span id="current-user-label">Login</span></div>
   </div>
 </div>
 
@@ -154,7 +146,6 @@ select:focus,input:focus{border-color:var(--red)}
       <option value="Meeran">Meeran</option>
       <option value="SK">SK</option>
       <option value="Sindu">Sindu</option>
-      
     </select>
     <select id="fp" onchange="render()">
       <option value="">All Priorities</option>
@@ -289,19 +280,16 @@ select:focus,input:focus{border-color:var(--red)}
 </div>
 </div>
 
-<!-- LOGIN MODAL -->
-<div class="modal-bg" id="user-modal-bg">
+<!-- GMAIL LOGIN -->
+<div class="modal-bg open" id="user-modal-bg" style="display:flex">
 <div class="user-modal">
   <div style="font-size:30px;margin-bottom:10px">🔐</div>
   <h2>North Gates Login</h2>
-  <p>Sign in with your approved company Gmail ID.</p>
-  <div class="login-note">
-    Allowed users only:<br>
-    SK, Sindu, Siddarth, Meeran
-  </div>
-  <button class="login-btn" onclick="loginWithGoogle()"><i class="ti ti-brand-google"></i> Continue with Google</button>
-  <div id="login-email" class="login-email"></div>
-  <button class="logout-link" onclick="logoutUser()" id="logout-link" style="display:none">Sign out</button>
+  <p>Login with your approved North Gates Gmail account.</p>
+  <button class="user-btn" style="width:100%;justify-content:center" onclick="loginWithGoogle()">
+    <i class="ti ti-brand-google" style="font-size:18px"></i> Continue with Gmail
+  </button>
+  <p style="margin-top:14px;margin-bottom:0;font-size:11px;line-height:1.6">Allowed users:<br>info@northgatesco.com<br>sindu@northgatesco.com<br>siddarth@northgatesco.com<br>meeran@northgatesco.com</p>
 </div>
 </div>
 
@@ -322,23 +310,21 @@ select:focus,input:focus{border-color:var(--red)}
 };
 // ═══════════════════════════════════════════════════
 
-let db,auth,useFirebase=false,useAuth=false;
+let db,auth,useFirebase=false;
 try{
   firebase.initializeApp(firebaseConfig);
   db=firebase.firestore();
   auth=firebase.auth();
   useFirebase=true;
-  useAuth=true;
 }catch(e){console.warn('Firebase not configured, using local mode');}
 
-const ALLOWED_USERS={
-  'info@northgatesco.com':'SK',
-  'sindu@northgatesco.com':'Sindu',
-  'siddarth@northgatesco.com':'Siddarth',
-  'meeran@northgatesco.com':'Meeran'
+const USERS_BY_EMAIL={
+  'info@northgatesco.com':{name:'SK',initials:'SK'},
+  'sindu@northgatesco.com':{name:'Sindu',initials:'SN'},
+  'siddarth@northgatesco.com':{name:'Siddarth',initials:'SI'},
+  'meeran@northgatesco.com':{name:'Meeran',initials:'ME'}
 };
-const USER_EMAIL={SK:'info@northgatesco.com',Sindu:'sindu@northgatesco.com',Siddarth:'siddarth@northgatesco.com',Meeran:'meeran@northgatesco.com'};
-const INI={Siddarth:'SI',Meeran:'ME',SK:'SK',Sindu:'SN',Meeran:'ME'};
+const INI={Siddarth:'SI',Meeran:'ME',SK:'SK',Sindu:'SN'};
 const AVC={Siddarth:'av-SI',Meeran:'av-ME',SK:'av-SK',Sindu:'av-SN'};
 const STMAP={todo:'To Do',progress:'In Progress',review:'Review',done:'Done'};
 const STCL={todo:'s-todo',progress:'s-prog',review:'s-rev',done:'s-done'};
@@ -371,68 +357,76 @@ const SEED=[
   {id:'26',title:'EMARA TAX VAT Return – SK',desc:'VAT payment pending\nPayment confirmation follow-up',assignee:'SK',status:'todo',cat:'Finance',priority:'high',updatedBy:''},
 ];
 
+
+
 let tasks=[...SEED];
 let editId=null,dragId=null;
-let currentUser=null,currentEmail=null,unsubscribeTasks=null;
+let currentUser=null;
+let currentUserEmail=null;
 let isFirstLoad=true;
+let listenerStarted=false;
 
-function applyLoginState(userName,email){
-  currentUser=userName;currentEmail=email;
-  localStorage.setItem('ng_user',userName);
-  localStorage.setItem('ng_email',email||'');
-  document.getElementById('current-user-label').textContent=userName;
-  const le=document.getElementById('login-email');if(le)le.textContent=email||'';
-  const lo=document.getElementById('logout-link');if(lo)lo.style.display='inline-block';
-  document.getElementById('user-modal-bg').classList.remove('open');
-  document.getElementById('user-modal-bg').style.display='none';
-  document.querySelector('.app').classList.remove('locked');
+function loginWithGoogle(){
+  if(!auth){showToast('Firebase Auth is not ready');return;}
+  const provider=new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  auth.signInWithPopup(provider).catch(err=>{
+    console.error(err);
+    showToast('Login failed. Please try again.');
+  });
 }
-function requireLogin(){
-  currentUser=null;currentEmail=null;
-  document.getElementById('current-user-label').textContent='Login';
+
+function showLogin(){
+  document.getElementById('app').style.display='none';
   document.getElementById('user-modal-bg').style.display='flex';
   document.getElementById('user-modal-bg').classList.add('open');
 }
-async function loginWithGoogle(){
-  if(!useAuth){alert('Firebase Auth is not available. Please check Firebase configuration.');return;}
-  const provider=new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt:'select_account'});
-  try{
-    const res=await auth.signInWithPopup(provider);
-    const email=(res.user&&res.user.email?res.user.email:'').toLowerCase();
-    if(!ALLOWED_USERS[email]){
-      await auth.signOut();
-      alert('Access denied. Please login with an approved North Gates Gmail ID.');
-      requireLogin();return;
-    }
-    applyLoginState(ALLOWED_USERS[email],email);
-    startTaskListener();
-    showToast('Welcome, '+ALLOWED_USERS[email]+'!');
-  }catch(e){console.warn(e);alert('Login failed. Please try again.');}
-}
-async function logoutUser(){
-  try{if(auth)await auth.signOut();}catch(e){}
-  localStorage.removeItem('ng_user');localStorage.removeItem('ng_email');
-  if(unsubscribeTasks){unsubscribeTasks();unsubscribeTasks=null;}
-  tasks=[];render();requireLogin();showToast('Signed out');
-}
-function changeUser(){logoutUser();}
-function setUser(n){applyLoginState(n,USER_EMAIL[n]||'');}
 
-if(useAuth){
+function showApp(){
+  document.getElementById('app').style.display='flex';
+  document.getElementById('user-modal-bg').style.display='none';
+  document.getElementById('user-modal-bg').classList.remove('open');
+  document.getElementById('current-user-label').textContent=currentUser+' ▾';
+}
+
+function changeUser(){
+  if(!currentUser){showLogin();return;}
+  if(confirm('Logout from '+currentUser+'?')) auth.signOut();
+}
+
+function handleAllowedUser(user){
+  const email=(user.email||'').toLowerCase();
+  const profile=USERS_BY_EMAIL[email];
+  if(!profile){
+    showToast('Access denied: '+email);
+    auth.signOut();
+    return;
+  }
+  currentUser=profile.name;
+  currentUserEmail=email;
+  showApp();
+  if(!listenerStarted) startTaskListener();
+  showToast('Welcome, '+currentUser+'!');
+}
+
+if(useFirebase && auth){
   auth.onAuthStateChanged(user=>{
-    const email=(user&&user.email?user.email:'').toLowerCase();
-    if(user&&ALLOWED_USERS[email]){applyLoginState(ALLOWED_USERS[email],email);startTaskListener();}
-    else{if(user)auth.signOut();requireLogin();render();}
+    if(user) handleAllowedUser(user);
+    else {currentUser=null;currentUserEmail=null;showLogin();}
   });
-}else{requireLogin();render();}
+}else{
+  document.getElementById('app').style.display='flex';
+  document.getElementById('user-modal-bg').style.display='none';
+  currentUser='Sindu';
+  document.getElementById('current-user-label').textContent='Sindu';
+  render();
+}
 
-// Firebase realtime listener
 function startTaskListener(){
-if(!currentUser)return;
-if(unsubscribeTasks)return;
+  listenerStarted=true;
+// Firebase realtime listener
 if(useFirebase&&firebaseConfig.projectId!=='REPLACE_PROJECT_ID'){
-  unsubscribeTasks=db.collection('ng_tasks').onSnapshot(snap=>{
+  db.collection('ng_tasks').onSnapshot(snap=>{
     tasks=[];
     snap.forEach(doc=>tasks.push({id:doc.id,...doc.data()}));
     if(tasks.length===0&&isFirstLoad){
@@ -460,7 +454,7 @@ function flashUpdate(msg){
 }
 
 async function saveToFirebase(data,id){
-  const payload={...data,updatedBy:currentUser||'Unknown',updatedEmail:currentEmail||'',updatedAt:new Date().toISOString()};
+  const payload={...data,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
   if(useFirebase&&firebaseConfig.projectId!=='REPLACE_PROJECT_ID'){
     try{
       if(id)await db.collection('ng_tasks').doc(id).update(payload);
@@ -526,7 +520,6 @@ function renderList(f){
 }
 
 function openModal(st){
-  if(!currentUser){alert('Please login first.');requireLogin();return;}
   editId=null;
   document.getElementById('modal-ttl').textContent='New Task';
   document.getElementById('f-title').value='';document.getElementById('f-desc').value='';
@@ -552,7 +545,6 @@ function closeModal(){document.getElementById('modal-bg').classList.remove('open
 function closeBg(e){if(e.target===document.getElementById('modal-bg'))closeModal();}
 
 async function saveTask(){
-  if(!currentUser){alert('Please login first.');requireLogin();return;}
   const title=document.getElementById('f-title').value.trim();
   if(!title){alert('Please enter a task title.');return;}
   const data={title,desc:document.getElementById('f-desc').value.trim(),assignee:document.getElementById('f-assignee').value,status:document.getElementById('f-status').value,cat:document.getElementById('f-cat').value,priority:document.getElementById('f-priority').value};
