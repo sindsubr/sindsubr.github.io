@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;font-size:14px;color:#1a1a1a}
@@ -113,7 +114,7 @@ select:focus,input:focus{border-color:var(--red)}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app" style="display:none">
 
 <div class="topbar">
   <div class="topbar-left">
@@ -126,7 +127,7 @@ select:focus,input:focus{border-color:var(--red)}
     <div class="hstat"><div class="hstat-n" id="h-open">0</div><div class="hstat-l">Open</div></div>
     <div class="hstat"><div class="hstat-n">49</div><div class="hstat-l">Quotes</div></div>
     <div class="hstat"><div class="hstat-n">9.65M</div><div class="hstat-l">AED Pipeline</div></div>
-    <div class="user-pill" onclick="changeUser()"><i class="ti ti-user" style="font-size:13px"></i><span id="current-user-label">Select</span></div>
+    <div class="user-pill" onclick="changeUser()"><i class="ti ti-user" style="font-size:13px"></i><span id="current-user-label">Login</span></div>
   </div>
 </div>
 
@@ -145,7 +146,6 @@ select:focus,input:focus{border-color:var(--red)}
       <option value="Meeran">Meeran</option>
       <option value="SK">SK</option>
       <option value="Sindu">Sindu</option>
-      <option value="Rajsekar">Rajsekar</option>
     </select>
     <select id="fp" onchange="render()">
       <option value="">All Priorities</option>
@@ -247,7 +247,7 @@ select:focus,input:focus{border-color:var(--red)}
     <div class="fr"><label>Assign To</label>
       <select id="f-assignee">
         <option value="Siddarth">Siddarth</option><option value="Meeran">Meeran</option>
-        <option value="SK">SK</option><option value="Sindu">Sindu</option><option value="Rajsekar">Rajsekar</option>
+        <option value="SK">SK</option><option value="Sindu">Sindu</option>
       </select>
     </div>
     <div class="fr"><label>Status</label>
@@ -280,19 +280,26 @@ select:focus,input:focus{border-color:var(--red)}
 </div>
 </div>
 
-<!-- USER PICKER -->
-<div class="modal-bg" id="user-modal-bg">
-<div class="user-modal">
-  <div style="font-size:30px;margin-bottom:10px">👋</div>
-  <h2>Who are you?</h2>
-  <p>Select your name — all your updates will be tracked</p>
-  <div class="user-grid">
-    <button class="user-btn" onclick="setUser('Siddarth')"><div class="av av-SI" style="width:28px;height:28px;font-size:10px">SI</div>Siddarth</button>
-    <button class="user-btn" onclick="setUser('Meeran')"><div class="av av-ME" style="width:28px;height:28px;font-size:10px">ME</div>Meeran</button>
-    <button class="user-btn" onclick="setUser('SK')"><div class="av av-SK" style="width:28px;height:28px;font-size:10px">SK</div>SK</button>
-    <button class="user-btn" onclick="setUser('Sindu')"><div class="av av-SN" style="width:28px;height:28px;font-size:10px">SN</div>Sindu</button>
-    <button class="user-btn" onclick="setUser('Rajsekar')" style="grid-column:span 2;justify-content:center"><div class="av av-RJ" style="width:28px;height:28px;font-size:10px">RJ</div>Rajsekar</button>
+<!-- EMAIL / PASSWORD LOGIN -->
+<div class="modal-bg open" id="user-modal-bg" style="display:flex">
+<div class="user-modal" style="text-align:left">
+  <div style="font-size:30px;margin-bottom:10px;text-align:center">🔐</div>
+  <h2 style="text-align:center">North Gates Login</h2>
+  <p style="text-align:center">Login with your approved North Gates email and password.</p>
+
+  <div class="fr">
+    <label>Email</label>
+    <input id="login-email" type="email" placeholder="sindu@northgatesco.com" autocomplete="email">
   </div>
+  <div class="fr">
+    <label>Password</label>
+    <input id="login-password" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginWithEmail()">
+  </div>
+
+  <button class="btn-save" style="width:100%;height:36px" onclick="loginWithEmail()">Login</button>
+  <button class="btn-cancel" style="width:100%;height:34px;margin-top:8px" onclick="sendPasswordReset()">Forgot Password?</button>
+
+  <p style="margin-top:14px;margin-bottom:0;font-size:11px;line-height:1.6;text-align:center">Allowed users:<br>info@northgatesco.com<br>sindu@northgatesco.com<br>siddarth@northgatesco.com<br>meeran@northgatesco.com</p>
 </div>
 </div>
 
@@ -313,15 +320,22 @@ select:focus,input:focus{border-color:var(--red)}
 };
 // ═══════════════════════════════════════════════════
 
-let db,useFirebase=false;
+let db,auth,useFirebase=false;
 try{
   firebase.initializeApp(firebaseConfig);
   db=firebase.firestore();
+  auth=firebase.auth();
   useFirebase=true;
 }catch(e){console.warn('Firebase not configured, using local mode');}
 
-const INI={Siddarth:'SI',Meeran:'ME',SK:'SK',Sindu:'SN',Rajsekar:'RJ'};
-const AVC={Siddarth:'av-SI',Meeran:'av-ME',SK:'av-SK',Sindu:'av-SN',Rajsekar:'av-RJ'};
+const USERS_BY_EMAIL={
+  'info@northgatesco.com':{name:'SK',initials:'SK'},
+  'sindu@northgatesco.com':{name:'Sindu',initials:'SN'},
+  'siddarth@northgatesco.com':{name:'Siddarth',initials:'SI'},
+  'meeran@northgatesco.com':{name:'Meeran',initials:'ME'}
+};
+const INI={Siddarth:'SI',Meeran:'ME',SK:'SK',Sindu:'SN'};
+const AVC={Siddarth:'av-SI',Meeran:'av-ME',SK:'av-SK',Sindu:'av-SN'};
 const STMAP={todo:'To Do',progress:'In Progress',review:'Review',done:'Done'};
 const STCL={todo:'s-todo',progress:'s-prog',review:'s-rev',done:'s-done'};
 const SEED=[
@@ -353,30 +367,95 @@ const SEED=[
   {id:'26',title:'EMARA TAX VAT Return – SK',desc:'VAT payment pending\nPayment confirmation follow-up',assignee:'SK',status:'todo',cat:'Finance',priority:'high',updatedBy:''},
 ];
 
+
+
 let tasks=[...SEED];
 let editId=null,dragId=null;
-let currentUser=localStorage.getItem('ng_user')||null;
+let currentUser=null;
+let currentUserEmail=null;
 let isFirstLoad=true;
+let listenerStarted=false;
 
-function setUser(n){
-  currentUser=n;localStorage.setItem('ng_user',n);
-  document.getElementById('current-user-label').textContent=n;
+function loginWithEmail(){
+  if(!auth){showToast('Firebase Auth is not ready');return;}
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  const password=document.getElementById('login-password').value||'';
+
+  if(!email || !password){showToast('Please enter email and password');return;}
+  if(!USERS_BY_EMAIL[email]){showToast('Access denied: this email is not allowed');return;}
+
+  auth.signInWithEmailAndPassword(email,password).catch(err=>{
+    console.error(err);
+    if(err.code==='auth/user-not-found') showToast('User not created in Firebase Auth');
+    else if(err.code==='auth/wrong-password') showToast('Wrong password');
+    else if(err.code==='auth/invalid-email') showToast('Invalid email');
+    else if(err.code==='auth/too-many-requests') showToast('Too many attempts. Try later.');
+    else showToast(err.message || 'Login failed');
+  });
+}
+
+function sendPasswordReset(){
+  if(!auth){showToast('Firebase Auth is not ready');return;}
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  if(!email){showToast('Enter email first');return;}
+  if(!USERS_BY_EMAIL[email]){showToast('Access denied: this email is not allowed');return;}
+  auth.sendPasswordResetEmail(email).then(()=>{
+    showToast('Password reset email sent');
+  }).catch(err=>{
+    console.error(err);
+    showToast(err.message || 'Could not send reset email');
+  });
+}
+
+function showLogin(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('user-modal-bg').style.display='flex';
+  document.getElementById('user-modal-bg').classList.add('open');
+  setTimeout(()=>document.getElementById('login-email')?.focus(),100);
+}
+
+function showApp(){
+  document.getElementById('app').style.display='flex';
+  document.getElementById('user-modal-bg').style.display='none';
   document.getElementById('user-modal-bg').classList.remove('open');
-  document.getElementById('user-modal-bg').style.display='none';
-  showToast('Welcome, '+n+'!');
-}
-function changeUser(){
-  document.getElementById('user-modal-bg').style.display='flex';
-  document.getElementById('user-modal-bg').classList.add('open');
-}
-if(!currentUser){
-  document.getElementById('user-modal-bg').style.display='flex';
-  document.getElementById('user-modal-bg').classList.add('open');
-}else{
-  document.getElementById('user-modal-bg').style.display='none';
-  document.getElementById('current-user-label').textContent=currentUser;
+  document.getElementById('current-user-label').textContent=currentUser+' ▾';
 }
 
+function changeUser(){
+  if(!currentUser){showLogin();return;}
+  if(confirm('Logout from '+currentUser+'?')) auth.signOut();
+}
+
+function handleAllowedUser(user){
+  const email=(user.email||'').toLowerCase();
+  const profile=USERS_BY_EMAIL[email];
+  if(!profile){
+    showToast('Access denied: '+email);
+    auth.signOut();
+    return;
+  }
+  currentUser=profile.name;
+  currentUserEmail=email;
+  showApp();
+  if(!listenerStarted) startTaskListener();
+  showToast('Welcome, '+currentUser+'!');
+}
+
+if(useFirebase && auth){
+  auth.onAuthStateChanged(user=>{
+    if(user) handleAllowedUser(user);
+    else {currentUser=null;currentUserEmail=null;showLogin();}
+  });
+}else{
+  document.getElementById('app').style.display='flex';
+  document.getElementById('user-modal-bg').style.display='none';
+  currentUser='Sindu';
+  document.getElementById('current-user-label').textContent='Sindu';
+  render();
+}
+
+function startTaskListener(){
+  listenerStarted=true;
 // Firebase realtime listener
 if(useFirebase&&firebaseConfig.projectId!=='REPLACE_PROJECT_ID'){
   db.collection('ng_tasks').onSnapshot(snap=>{
@@ -397,7 +476,8 @@ if(useFirebase&&firebaseConfig.projectId!=='REPLACE_PROJECT_ID'){
     });
     render();
   },()=>{tasks=[...SEED];render();});
-}else{render();}
+}else{tasks=[...SEED];render();}
+}
 
 function flashUpdate(msg){
   const el=document.getElementById('update-flash');
