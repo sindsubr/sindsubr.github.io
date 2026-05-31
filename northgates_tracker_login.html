@@ -280,16 +280,26 @@ select:focus,input:focus{border-color:var(--red)}
 </div>
 </div>
 
-<!-- GMAIL LOGIN -->
+<!-- EMAIL / PASSWORD LOGIN -->
 <div class="modal-bg open" id="user-modal-bg" style="display:flex">
-<div class="user-modal">
-  <div style="font-size:30px;margin-bottom:10px">🔐</div>
-  <h2>North Gates Login</h2>
-  <p>Login with your approved North Gates Gmail account.</p>
-  <button class="user-btn" style="width:100%;justify-content:center" onclick="loginWithGoogle()">
-    <i class="ti ti-brand-google" style="font-size:18px"></i> Continue with Gmail
-  </button>
-  <p style="margin-top:14px;margin-bottom:0;font-size:11px;line-height:1.6">Allowed users:<br>info@northgatesco.com<br>sindu@northgatesco.com<br>siddarth@northgatesco.com<br>meeran@northgatesco.com</p>
+<div class="user-modal" style="text-align:left">
+  <div style="font-size:30px;margin-bottom:10px;text-align:center">🔐</div>
+  <h2 style="text-align:center">North Gates Login</h2>
+  <p style="text-align:center">Login with your approved North Gates email and password.</p>
+
+  <div class="fr">
+    <label>Email</label>
+    <input id="login-email" type="email" placeholder="sindu@northgatesco.com" autocomplete="email">
+  </div>
+  <div class="fr">
+    <label>Password</label>
+    <input id="login-password" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginWithEmail()">
+  </div>
+
+  <button class="btn-save" style="width:100%;height:36px" onclick="loginWithEmail()">Login</button>
+  <button class="btn-cancel" style="width:100%;height:34px;margin-top:8px" onclick="sendPasswordReset()">Forgot Password?</button>
+
+  <p style="margin-top:14px;margin-bottom:0;font-size:11px;line-height:1.6;text-align:center">Allowed users:<br>info@northgatesco.com<br>sindu@northgatesco.com<br>siddarth@northgatesco.com<br>meeran@northgatesco.com</p>
 </div>
 </div>
 
@@ -366,13 +376,34 @@ let currentUserEmail=null;
 let isFirstLoad=true;
 let listenerStarted=false;
 
-function loginWithGoogle(){
+function loginWithEmail(){
   if(!auth){showToast('Firebase Auth is not ready');return;}
-  const provider=new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt:'select_account'});
-  auth.signInWithPopup(provider).catch(err=>{
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  const password=document.getElementById('login-password').value||'';
+
+  if(!email || !password){showToast('Please enter email and password');return;}
+  if(!USERS_BY_EMAIL[email]){showToast('Access denied: this email is not allowed');return;}
+
+  auth.signInWithEmailAndPassword(email,password).catch(err=>{
     console.error(err);
-    showToast('Login failed. Please try again.');
+    if(err.code==='auth/user-not-found') showToast('User not created in Firebase Auth');
+    else if(err.code==='auth/wrong-password') showToast('Wrong password');
+    else if(err.code==='auth/invalid-email') showToast('Invalid email');
+    else if(err.code==='auth/too-many-requests') showToast('Too many attempts. Try later.');
+    else showToast(err.message || 'Login failed');
+  });
+}
+
+function sendPasswordReset(){
+  if(!auth){showToast('Firebase Auth is not ready');return;}
+  const email=(document.getElementById('login-email').value||'').trim().toLowerCase();
+  if(!email){showToast('Enter email first');return;}
+  if(!USERS_BY_EMAIL[email]){showToast('Access denied: this email is not allowed');return;}
+  auth.sendPasswordResetEmail(email).then(()=>{
+    showToast('Password reset email sent');
+  }).catch(err=>{
+    console.error(err);
+    showToast(err.message || 'Could not send reset email');
   });
 }
 
@@ -380,6 +411,7 @@ function showLogin(){
   document.getElementById('app').style.display='none';
   document.getElementById('user-modal-bg').style.display='flex';
   document.getElementById('user-modal-bg').classList.add('open');
+  setTimeout(()=>document.getElementById('login-email')?.focus(),100);
 }
 
 function showApp(){
