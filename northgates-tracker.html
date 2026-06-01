@@ -82,7 +82,11 @@ select:focus,input:focus{border-color:var(--red)}
 .qtable td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 .qtable tr:hover td{background:var(--surface2)}
 .qbadge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.q-sent{background:#EBF5FB;color:#1565C0}.q-draft{background:#FFF3E0;color:#E65100}.q-acc{background:#EAFAF1;color:#1E8449}.q-pend{background:#FDEDEC;color:#922B21}
+.q-sent{background:#EBF5FB;color:#1565C0}.q-draft{background:#FFF3E0;color:#E65100}.q-acc{background:#EAFAF1;color:#1E8449}.q-pend{background:#FDEDEC;color:#922B21}.q-lost{background:#f3f4f6;color:#6b7280}
+.deadline-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;padding:2px 6px;border-radius:20px;margin-top:4px}
+.dl-ok{background:#EAFAF1;color:#1E8449}.dl-soon{background:#FFF3E0;color:#E65100}.dl-over{background:#FDEDEC;color:#922B21}
+.btn-icon{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:var(--text3);font-size:13px;line-height:1}
+.btn-icon:hover{background:var(--surface2);color:var(--text)}
 .q-wrap{overflow:auto}
 .warn-bar{background:#FDEDEC;border:1px solid #F1948A;border-radius:var(--radius-sm);padding:9px 14px;margin-bottom:14px;font-size:12px;color:#922B21;display:flex;align-items:center;gap:8px;font-weight:500}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:center;justify-content:center}
@@ -134,7 +138,7 @@ select:focus,input:focus{border-color:var(--red)}
 <div class="tabs">
   <div class="tab active" onclick="switchTab('tasks',this)"><i class="ti ti-checklist"></i>Tasks</div>
   <div class="tab" onclick="switchTab('quotes',this)"><i class="ti ti-file-invoice"></i>Quote Register</div>
-  <div class="tab" onclick="switchTab('khidmah',this)"><i class="ti ti-alert-circle"></i>Khidmah RFQs</div>
+  <div class="tab" onclick="switchTab('khidmah',this)"><i class="ti ti-file-search"></i>RFQ Register</div>
 </div>
 
 <div id="tab-tasks" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
@@ -180,7 +184,7 @@ select:focus,input:focus{border-color:var(--red)}
     </div>
     <div class="list-container" id="list-view">
       <table class="ltable">
-        <thead><tr><th>Task</th><th>Assigned To</th><th>Category</th><th>Priority</th><th>Status</th><th>Last Updated By</th></tr></thead>
+        <thead><tr><th>Task</th><th>Assigned To</th><th>Category</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Last Updated By</th></tr></thead>
         <tbody id="list-body"></tbody>
       </table>
     </div>
@@ -189,6 +193,7 @@ select:focus,input:focus{border-color:var(--red)}
 
 <div id="tab-quotes" style="display:none;flex:1;overflow:hidden;flex-direction:column">
   <div class="toolbar">
+    <button class="btn-add" onclick="openQuoteModal()"><i class="ti ti-plus"></i> New Quote</button>
     <select id="qf-client" onchange="renderQuotes()">
       <option value="">All Clients</option>
       <option value="Khidmah LLC">Khidmah LLC</option>
@@ -205,34 +210,106 @@ select:focus,input:focus{border-color:var(--red)}
       <option value="Sent">Sent</option>
       <option value="Draft">Draft</option>
       <option value="Accepted">Accepted</option>
+      <option value="Lost">Lost</option>
     </select>
   </div>
   <div class="content">
     <div class="q-summ">
-      <div class="sc"><div class="sc-n">49</div><div class="sc-l">Total Quotes</div></div>
-      <div class="sc"><div class="sc-n">11</div><div class="sc-l">Clients</div></div>
-      <div class="sc"><div class="sc-n">35</div><div class="sc-l">Priced</div></div>
-      <div class="sc"><div class="sc-n" style="color:var(--red)">14</div><div class="sc-l">Unpriced</div></div>
+      <div class="sc"><div class="sc-n" id="qs-total">0</div><div class="sc-l">Total Quotes</div></div>
+      <div class="sc"><div class="sc-n" id="qs-clients">0</div><div class="sc-l">Clients</div></div>
+      <div class="sc"><div class="sc-n" id="qs-priced">0</div><div class="sc-l">Priced</div></div>
+      <div class="sc"><div class="sc-n" id="qs-unpriced" style="color:var(--red)">0</div><div class="sc-l">Unpriced</div></div>
     </div>
     <div class="q-wrap">
       <table class="qtable">
-        <thead><tr><th>Date</th><th>Quote No.</th><th>Client</th><th>Scope / Location</th><th>Amount (AED)</th><th>Status</th></tr></thead>
+        <thead><tr><th>Date</th><th>Quote No.</th><th>Client</th><th>Scope / Location</th><th>Amount (AED)</th><th>Status</th><th style="width:60px"></th></tr></thead>
         <tbody id="q-body"></tbody>
       </table>
     </div>
   </div>
 </div>
 
+<!-- QUOTE MODAL -->
+<div class="modal-bg" id="quote-modal-bg" onclick="if(event.target===this)closeQuoteModal()">
+<div class="modal">
+  <h2 id="quote-modal-ttl">New Quote</h2>
+  <div class="f2">
+    <div class="fr"><label>Date</label><input id="qm-date" type="text" placeholder="e.g. 01 Jun 2026"></div>
+    <div class="fr"><label>Quote No.</label><input id="qm-no" type="text" placeholder="e.g. NG/Q/1620"></div>
+  </div>
+  <div class="fr"><label>Client</label><input id="qm-client" type="text" placeholder="Client name"></div>
+  <div class="fr"><label>Scope</label><input id="qm-scope" type="text" placeholder="Scope of work"></div>
+  <div class="fr"><label>Location</label><input id="qm-loc" type="text" placeholder="Site / location"></div>
+  <div class="f2">
+    <div class="fr"><label>Amount (AED)</label><input id="qm-amt" type="number" placeholder="Leave blank if unpriced"></div>
+    <div class="fr"><label>Status</label>
+      <select id="qm-status">
+        <option value="Draft">Draft</option>
+        <option value="Sent">Sent</option>
+        <option value="Accepted">Accepted</option>
+        <option value="Lost">Lost</option>
+      </select>
+    </div>
+  </div>
+  <div class="m-actions">
+    <button class="btn-del" id="quote-btn-del" style="display:none" onclick="deleteQuote()"><i class="ti ti-trash"></i> Delete</button>
+    <button class="btn-cancel" onclick="closeQuoteModal()">Cancel</button>
+    <button class="btn-save" onclick="saveQuote()">Save Quote</button>
+  </div>
+</div>
+</div>
+
 <div id="tab-khidmah" style="display:none;flex:1;overflow:hidden;flex-direction:column">
+  <div class="toolbar">
+    <select id="rfq-filter-status" onchange="renderRFQ()">
+      <option value="">All Statuses</option>
+      <option value="Pending">Pending</option>
+      <option value="Submitted">Submitted</option>
+      <option value="Awarded">Awarded</option>
+      <option value="Lost">Lost</option>
+    </select>
+    <select id="rfq-filter-site" onchange="renderRFQ()">
+      <option value="">All Sites</option>
+    </select>
+    <button class="btn-add" onclick="openRFQModal()"><i class="ti ti-plus"></i> New RFQ</button>
+  </div>
   <div class="content">
-    <div class="warn-bar"><i class="ti ti-alert-triangle"></i><strong>15 Pending RFQs</strong> from Khidmah — quotations not yet submitted</div>
+    <div class="warn-bar" id="rfq-warn-bar"><i class="ti ti-alert-triangle"></i><span id="rfq-warn-text">Loading…</span></div>
     <div class="q-wrap">
       <table class="qtable">
-        <thead><tr><th>RFQ No.</th><th>Scope / Description</th><th>Site</th><th>NG Quote Ref</th><th>Status</th></tr></thead>
+        <thead><tr><th>RFQ No.</th><th>Scope / Description</th><th>Site</th><th>NG Quote Ref</th><th>Status</th><th style="width:60px"></th></tr></thead>
         <tbody id="rfq-body"></tbody>
       </table>
     </div>
   </div>
+</div>
+
+<!-- RFQ MODAL -->
+<div class="modal-bg" id="rfq-modal-bg" onclick="if(event.target===this)closeRFQModal()">
+<div class="modal">
+  <h2 id="rfq-modal-ttl">New RFQ</h2>
+  <div class="f2">
+    <div class="fr"><label>RFQ No.</label><input id="rfq-f-no" type="text" placeholder="e.g. 1000333206"></div>
+    <div class="fr"><label>Site</label><input id="rfq-f-site" type="text" placeholder="e.g. Jimi Mall"></div>
+  </div>
+  <div class="fr"><label>Scope / Description</label><input id="rfq-f-scope" type="text" placeholder="e.g. Aluminium Louver Gate"></div>
+  <div class="f2">
+    <div class="fr"><label>NG Quote Ref</label><input id="rfq-f-ref" type="text" placeholder="e.g. NG/Q/1577 or –"></div>
+    <div class="fr"><label>Status</label>
+      <select id="rfq-f-status">
+        <option value="Pending">Pending</option>
+        <option value="Submitted">Submitted</option>
+        <option value="Awarded">Awarded</option>
+        <option value="Lost">Lost</option>
+      </select>
+    </div>
+  </div>
+  <div class="m-actions">
+    <button class="btn-del" id="rfq-btn-del" style="display:none" onclick="deleteRFQ()"><i class="ti ti-trash"></i> Delete</button>
+    <button class="btn-cancel" onclick="closeRFQModal()">Cancel</button>
+    <button class="btn-save" onclick="saveRFQ()">Save RFQ</button>
+  </div>
+</div>
 </div>
 
 </div>
@@ -272,8 +349,10 @@ select:focus,input:focus{border-color:var(--red)}
       </select>
     </div>
   </div>
+  <div class="fr"><label>Deadline Date</label><input id="f-deadline" type="date"></div>
   <div class="m-actions">
     <button class="btn-del" id="btn-del" style="display:none" onclick="deleteTask()"><i class="ti ti-trash"></i> Delete</button>
+    <button class="btn-cancel" id="btn-clone" style="display:none" onclick="cloneTask()"><i class="ti ti-copy"></i> Clone</button>
     <button class="btn-cancel" onclick="closeModal()">Cancel</button>
     <button class="btn-save" onclick="saveTask()">Save Task</button>
   </div>
@@ -437,7 +516,7 @@ function handleAllowedUser(user){
   currentUser=profile.name;
   currentUserEmail=email;
   showApp();
-  if(!listenerStarted) startTaskListener();
+  if(!listenerStarted){startTaskListener();startQuoteListener();startRFQListener();}
   showToast('Welcome, '+currentUser+'!');
 }
 
@@ -528,9 +607,27 @@ function getFiltered(){
   return tasks.filter(t=>(!a||t.assignee===a)&&(!p||t.priority===p)&&(!s||t.title.toLowerCase().includes(s)||(t.desc||'').toLowerCase().includes(s)));
 }
 
+function deadlineBadge(deadline,status){
+  if(!deadline||status==='done')return'';
+  const today=new Date();today.setHours(0,0,0,0);
+  const dl=new Date(deadline);dl.setHours(0,0,0,0);
+  const diff=Math.round((dl-today)/(1000*60*60*24));
+  if(diff<0){
+    const days=Math.abs(diff);
+    return '<div class="deadline-badge dl-over"><i class="ti ti-clock-exclamation" style="font-size:9px"></i>'+days+' day'+(days>1?'s':'')+' overdue</div>';
+  }else if(diff===0){
+    return '<div class="deadline-badge dl-soon"><i class="ti ti-clock" style="font-size:9px"></i>Due today</div>';
+  }else if(diff<=3){
+    return '<div class="deadline-badge dl-soon"><i class="ti ti-clock" style="font-size:9px"></i>Due in '+diff+' day'+(diff>1?'s':'')+'</div>';
+  }else{
+    const d=new Date(deadline);
+    return '<div class="deadline-badge dl-ok"><i class="ti ti-calendar" style="font-size:9px"></i>'+d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+'</div>';
+  }
+}
+
 function cardHTML(t){
   const sub=t.desc?(t.desc.split('\n')[0]+(t.desc.split('\n').length>1?'…':'')):'';
-  return '<div class="card p-'+(t.priority||'medium')+'" draggable="true" ondragstart="ds(event,\''+t.id+'\')" onclick="editTask(\''+t.id+'\')"><div class="card-title">'+t.title+'</div>'+(sub?'<div class="card-sub">'+sub+'</div>':'')+'<div class="card-foot"><div class="card-foot-left">'+avHTML(t.assignee)+'<span class="aname">'+t.assignee+'</span></div><span class="cat-badge">'+(t.cat||'')+'</span></div></div>';
+  return '<div class="card p-'+(t.priority||'medium')+'" draggable="true" ondragstart="ds(event,\''+t.id+'\')" onclick="editTask(\''+t.id+'\')"><div class="card-title">'+t.title+'</div>'+(sub?'<div class="card-sub">'+sub+'</div>':'')+deadlineBadge(t.deadline,t.status)+'<div class="card-foot" style="margin-top:6px"><div class="card-foot-left">'+avHTML(t.assignee)+'<span class="aname">'+t.assignee+'</span></div><span class="cat-badge">'+(t.cat||'')+'</span></div></div>';
 }
 
 function render(){
@@ -548,7 +645,7 @@ function render(){
 
 function renderList(f){
   const lb=document.getElementById('list-body');if(!lb)return;
-  lb.innerHTML=f.map(t=>'<tr onclick="editTask(\''+t.id+'\')"><td><strong style="font-size:12px;font-weight:500">'+t.title+'</strong>'+(t.desc?'<br><span style="font-size:10px;color:var(--text2)">'+t.desc.split('\n').slice(0,2).join(' · ')+'</span>':'')+'</td><td><div style="display:flex;align-items:center;gap:5px">'+avHTML(t.assignee,18)+'<span>'+t.assignee+'</span></div></td><td><span class="cat-badge">'+(t.cat||'')+'</span></td><td><span style="font-size:11px;font-weight:600;color:'+(t.priority==='high'?'#E53935':t.priority==='medium'?'#FB8C00':'#43A047')+'">'+(t.priority||'medium').charAt(0).toUpperCase()+(t.priority||'medium').slice(1)+'</span></td><td><span class="sp '+(STCL[t.status]||'s-todo')+'">'+(STMAP[t.status]||'To Do')+'</span></td><td style="font-size:11px;color:var(--text2)">'+(t.updatedBy||'–')+'</td></tr>').join('');
+  lb.innerHTML=f.map(t=>'<tr onclick="editTask(\''+t.id+'\')"><td><strong style="font-size:12px;font-weight:500">'+t.title+'</strong>'+(t.desc?'<br><span style="font-size:10px;color:var(--text2)">'+t.desc.split('\n').slice(0,2).join(' · ')+'</span>':'')+'</td><td><div style="display:flex;align-items:center;gap:5px">'+avHTML(t.assignee,18)+'<span>'+t.assignee+'</span></div></td><td><span class="cat-badge">'+(t.cat||'')+'</span></td><td><span style="font-size:11px;font-weight:600;color:'+(t.priority==='high'?'#E53935':t.priority==='medium'?'#FB8C00':'#43A047')+'">'+(t.priority||'medium').charAt(0).toUpperCase()+(t.priority||'medium').slice(1)+'</span></td><td><span class="sp '+(STCL[t.status]||'s-todo')+'">'+(STMAP[t.status]||'To Do')+'</span></td><td>'+deadlineBadge(t.deadline,t.status)+'</td><td style="font-size:11px;color:var(--text2)">'+(t.updatedBy||'–')+'</td></tr>').join('');
 }
 
 function openModal(st){
@@ -558,7 +655,9 @@ function openModal(st){
   document.getElementById('f-assignee').value=currentUser||'Siddarth';
   document.getElementById('f-status').value=st||'todo';
   document.getElementById('f-cat').value='Operations';document.getElementById('f-priority').value='medium';
+  document.getElementById('f-deadline').value='';
   document.getElementById('btn-del').style.display='none';
+  document.getElementById('btn-clone').style.display='none';
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -569,7 +668,9 @@ function editTask(id){
   document.getElementById('f-title').value=t.title;document.getElementById('f-desc').value=t.desc||'';
   document.getElementById('f-assignee').value=t.assignee;document.getElementById('f-status').value=t.status;
   document.getElementById('f-cat').value=t.cat||'Operations';document.getElementById('f-priority').value=t.priority||'medium';
+  document.getElementById('f-deadline').value=t.deadline||'';
   document.getElementById('btn-del').style.display='';
+  document.getElementById('btn-clone').style.display='';
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -579,13 +680,19 @@ function closeBg(e){if(e.target===document.getElementById('modal-bg'))closeModal
 async function saveTask(){
   const title=document.getElementById('f-title').value.trim();
   if(!title){alert('Please enter a task title.');return;}
-  const data={title,desc:document.getElementById('f-desc').value.trim(),assignee:document.getElementById('f-assignee').value,status:document.getElementById('f-status').value,cat:document.getElementById('f-cat').value,priority:document.getElementById('f-priority').value};
+  const data={title,desc:document.getElementById('f-desc').value.trim(),assignee:document.getElementById('f-assignee').value,status:document.getElementById('f-status').value,cat:document.getElementById('f-cat').value,priority:document.getElementById('f-priority').value,deadline:document.getElementById('f-deadline').value||null};
   closeModal();await saveToFirebase(data,editId);
 }
 
 async function deleteTask(){
   if(!editId||!confirm('Delete this task?'))return;
   closeModal();await deleteFromFirebase(editId);
+}
+
+async function cloneTask(){
+  const t=tasks.find(x=>x.id===editId);if(!t)return;
+  const clone={title:'[Copy] '+t.title,desc:t.desc||'',assignee:t.assignee,status:'todo',cat:t.cat,priority:t.priority,deadline:t.deadline||null};
+  closeModal();await saveToFirebase(clone,null);showToast('Task cloned ✓');
 }
 
 // QUOTES
@@ -661,17 +768,210 @@ const RFQS=[
   {no:'–',scope:'Acoustic Testing, GPR & Water Leakage Detection',site:'Al Raha Gardens',ref:'NG/Q/1606',status:'Submitted'},
 ];
 
+// ═══════════════════════════════════════════════════
+// QUOTES — Firebase-backed (ng_quotes collection)
+// ═══════════════════════════════════════════════════
+let quotes=[...QUOTES]; // live array, seeded from QUOTES constant then overwritten by Firebase
+let editQuoteId=null;   // Firestore doc id of quote being edited (null = new)
+let quotesSeeded=false;
+
+function startQuoteListener(){
+  if(!useFirebase||!db)return;
+  db.collection('ng_quotes').orderBy('createdAt','desc').onSnapshot(snap=>{
+    if(snap.empty&&!quotesSeeded){
+      // First ever load — seed all static quotes into Firestore
+      const batch=db.batch();
+      QUOTES.forEach((q,i)=>{
+        const ref=db.collection('ng_quotes').doc();
+        batch.set(ref,{...q,createdAt:new Date(q.date+' 00:00:00').getTime()||Date.now()-i*1000,updatedBy:'seed',updatedAt:new Date().toISOString()});
+      });
+      batch.commit().then(()=>{quotesSeeded=true;}).catch(e=>console.warn('Seed error',e));
+      return;
+    }
+    quotesSeeded=true;
+    quotes=[];
+    snap.forEach(doc=>quotes.push({_id:doc.id,...doc.data()}));
+    renderQuotes();
+  },e=>{console.warn('Quote listener error',e);quotes=[...QUOTES];renderQuotes();});
+}
+
 function renderQuotes(){
   const cl=document.getElementById('qf-client').value;
   const st=document.getElementById('qf-status').value;
-  const f=QUOTES.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st));
-  const qcl={Sent:'q-sent',Draft:'q-draft',Accepted:'q-acc'};
+  const f=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st));
   const fmt=n=>n?'AED '+n.toLocaleString('en-AE',{minimumFractionDigits:0,maximumFractionDigits:0}):'–';
-  document.getElementById('q-body').innerHTML=f.map(q=>'<tr><td style="white-space:nowrap;color:var(--text2);font-size:11px">'+q.date+'</td><td style="white-space:nowrap;font-weight:500;font-size:11px;font-family:\'DM Mono\',monospace">'+q.no+'</td><td style="font-size:11px">'+q.client+'</td><td style="font-size:12px">'+q.scope+'<br><span style="font-size:10px;color:var(--text2)">'+q.loc+'</span></td><td style="white-space:nowrap;font-weight:500">'+fmt(q.amt)+'</td><td><span class="qbadge '+(qcl[q.status]||'q-sent')+'">'+q.status+'</span></td></tr>').join('');
+  document.getElementById('q-body').innerHTML=f.map(q=>{
+    const id=q._id||'';
+    return '<tr>'
+      +'<td style="white-space:nowrap;color:var(--text2);font-size:11px">'+q.date+'</td>'
+      +'<td style="white-space:nowrap;font-weight:500;font-size:11px;font-family:\'DM Mono\',monospace">'+q.no+'</td>'
+      +'<td style="font-size:11px">'+q.client+'</td>'
+      +'<td style="font-size:12px">'+q.scope+'<br><span style="font-size:10px;color:var(--text2)">'+q.loc+'</span></td>'
+      +'<td style="white-space:nowrap;font-weight:500">'+fmt(q.amt)+'</td>'
+      +'<td><select onchange="quickStatusQuote(\''+id+'\',this.value)" style="font-size:10px;padding:2px 6px;border-radius:20px;border:1px solid var(--border2);font-weight:600;background:transparent;cursor:pointer">'
+        +['Draft','Sent','Accepted','Lost'].map(s=>'<option value="'+s+'" '+(q.status===s?'selected':'')+'>'+s+'</option>').join('')
+      +'</select></td>'
+      +'<td style="white-space:nowrap">'
+        +'<button class="btn-icon" onclick="openQuoteModal(\''+id+'\')" title="Edit"><i class="ti ti-pencil"></i></button>'
+        +'<button class="btn-icon" onclick="confirmDeleteQuote(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>'
+      +'</td></tr>';
+  }).join('');
+  document.getElementById('qs-total').textContent=quotes.length;
+  document.getElementById('qs-clients').textContent=new Set(quotes.map(q=>q.client)).size;
+  document.getElementById('qs-priced').textContent=quotes.filter(q=>q.amt).length;
+  document.getElementById('qs-unpriced').textContent=quotes.filter(q=>!q.amt).length;
+}
+
+async function quickStatusQuote(id,val){
+  const q=quotes.find(x=>x._id===id);if(!q)return;
+  if(useFirebase&&db){
+    try{await db.collection('ng_quotes').doc(id).update({status:val,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()});showToast('Status updated ✓');return;}catch(e){}
+  }
+  if(q)q.status=val;renderQuotes();showToast('Status updated ✓');
+}
+
+function openQuoteModal(id){
+  editQuoteId=id||null;
+  const q=id?quotes.find(x=>x._id===id):null;
+  document.getElementById('quote-modal-ttl').textContent=q?'Edit Quote':'New Quote';
+  document.getElementById('qm-date').value=q?q.date:'';
+  document.getElementById('qm-no').value=q?q.no:'';
+  document.getElementById('qm-client').value=q?q.client:'';
+  document.getElementById('qm-scope').value=q?q.scope:'';
+  document.getElementById('qm-loc').value=q?q.loc:'';
+  document.getElementById('qm-amt').value=q&&q.amt?q.amt:'';
+  document.getElementById('qm-status').value=q?q.status:'Draft';
+  document.getElementById('quote-btn-del').style.display=q?'':'none';
+  document.getElementById('quote-modal-bg').classList.add('open');
+}
+function closeQuoteModal(){document.getElementById('quote-modal-bg').classList.remove('open');}
+
+async function saveQuote(){
+  const no=document.getElementById('qm-no').value.trim();
+  if(!no){alert('Please enter a quote number.');return;}
+  const data={date:document.getElementById('qm-date').value.trim(),no,client:document.getElementById('qm-client').value.trim(),scope:document.getElementById('qm-scope').value.trim(),loc:document.getElementById('qm-loc').value.trim(),amt:parseFloat(document.getElementById('qm-amt').value)||null,status:document.getElementById('qm-status').value,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
+  closeQuoteModal();
+  if(useFirebase&&db){
+    try{
+      if(editQuoteId){await db.collection('ng_quotes').doc(editQuoteId).update(data);showToast('Quote updated ✓');}
+      else{await db.collection('ng_quotes').add({...data,createdAt:Date.now()});showToast('Quote added ✓');}
+      return;
+    }catch(e){console.warn('Firebase error',e);}
+  }
+  // Local fallback
+  if(editQuoteId){const i=quotes.findIndex(x=>x._id===editQuoteId);if(i>=0)quotes[i]={...quotes[i],...data};}
+  else quotes.unshift({_id:'l'+Date.now(),...data});
+  renderQuotes();showToast(editQuoteId?'Quote updated ✓':'Quote added ✓');
+}
+
+async function deleteQuote(){
+  if(!editQuoteId)return;
+  if(!confirm('Delete this quote?'))return;
+  closeQuoteModal();
+  if(useFirebase&&db){try{await db.collection('ng_quotes').doc(editQuoteId).delete();showToast('Quote deleted');return;}catch(e){}}
+  quotes=quotes.filter(x=>x._id!==editQuoteId);renderQuotes();showToast('Quote deleted');
+}
+async function confirmDeleteQuote(id){
+  if(!confirm('Delete this quote?'))return;
+  if(useFirebase&&db){try{await db.collection('ng_quotes').doc(id).delete();showToast('Quote deleted');return;}catch(e){}}
+  quotes=quotes.filter(x=>x._id!==id);renderQuotes();showToast('Quote deleted');
+}
+
+// ═══════════════════════════════════════════════════
+// RFQs — Firebase-backed (ng_rfqs collection)
+// ═══════════════════════════════════════════════════
+let rfqs=[...RFQS]; // live array, overwritten by Firebase
+let editRFQId=null; // Firestore doc id
+let rfqsSeeded=false;
+
+function startRFQListener(){
+  if(!useFirebase||!db)return;
+  db.collection('ng_rfqs').onSnapshot(snap=>{
+    if(snap.empty&&!rfqsSeeded){
+      const batch=db.batch();
+      RFQS.forEach((r,i)=>{
+        const ref=db.collection('ng_rfqs').doc();
+        batch.set(ref,{...r,createdAt:Date.now()-i*1000,updatedBy:'seed',updatedAt:new Date().toISOString()});
+      });
+      batch.commit().then(()=>{rfqsSeeded=true;}).catch(e=>console.warn('RFQ seed error',e));
+      return;
+    }
+    rfqsSeeded=true;
+    rfqs=[];
+    snap.forEach(doc=>rfqs.push({_id:doc.id,...doc.data()}));
+    renderRFQ();
+  },e=>{console.warn('RFQ listener error',e);rfqs=[...RFQS];renderRFQ();});
 }
 
 function renderRFQ(){
-  document.getElementById('rfq-body').innerHTML=RFQS.map(r=>'<tr><td style="font-size:11px;color:var(--text2);font-family:\'DM Mono\',monospace">'+r.no+'</td><td style="font-weight:500;font-size:12px">'+r.scope+'</td><td style="font-size:12px">'+r.site+'</td><td style="font-size:11px;color:'+(r.ref==='–'?'var(--text3)':'var(--blue)')+';font-family:\'DM Mono\',monospace">'+r.ref+'</td><td><span class="qbadge '+(r.status==='Submitted'?'q-acc':'q-pend')+'">'+r.status+'</span></td></tr>').join('');
+  const st=document.getElementById('rfq-filter-status').value;
+  const si=document.getElementById('rfq-filter-site').value;
+  const sites=[...new Set(rfqs.map(r=>r.site))].sort();
+  const siteEl=document.getElementById('rfq-filter-site');
+  const curSite=siteEl.value;
+  siteEl.innerHTML='<option value="">All Sites</option>'+sites.map(s=>'<option value="'+s+'" '+(s===curSite?'selected':'')+'>'+s+'</option>').join('');
+  const f=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si));
+  const pending=rfqs.filter(r=>r.status==='Pending').length;
+  document.getElementById('rfq-warn-text').innerHTML='<strong>'+pending+' Pending RFQ'+(pending!==1?'s':'')+'</strong> — quotations not yet submitted';
+  document.getElementById('rfq-warn-bar').style.display=pending>0?'flex':'none';
+  document.getElementById('rfq-body').innerHTML=f.map(r=>{
+    const id=r._id||'';
+    const stcl=r.status==='Submitted'||r.status==='Awarded'?'q-acc':r.status==='Lost'?'q-lost':'q-pend';
+    return '<tr>'
+      +'<td style="font-size:11px;color:var(--text2);font-family:\'DM Mono\',monospace">'+r.no+'</td>'
+      +'<td style="font-weight:500;font-size:12px">'+r.scope+'</td>'
+      +'<td style="font-size:12px">'+r.site+'</td>'
+      +'<td style="font-size:11px;color:'+(r.ref==='–'||!r.ref?'var(--text3)':'var(--blue)')+';font-family:\'DM Mono\',monospace">'+(r.ref||'–')+'</td>'
+      +'<td><span class="qbadge '+stcl+'">'+r.status+'</span></td>'
+      +'<td style="white-space:nowrap">'
+        +'<button class="btn-icon" onclick="openRFQModal(\''+id+'\')" title="Edit"><i class="ti ti-pencil"></i></button>'
+        +'<button class="btn-icon" onclick="confirmDeleteRFQ(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>'
+      +'</td></tr>';
+  }).join('');
+}
+
+function openRFQModal(id){
+  editRFQId=id||null;
+  const r=id?rfqs.find(x=>x._id===id):null;
+  document.getElementById('rfq-modal-ttl').textContent=r?'Edit RFQ':'New RFQ';
+  document.getElementById('rfq-f-no').value=r?r.no:'';
+  document.getElementById('rfq-f-site').value=r?r.site:'';
+  document.getElementById('rfq-f-scope').value=r?r.scope:'';
+  document.getElementById('rfq-f-ref').value=r?(r.ref||'–'):'–';
+  document.getElementById('rfq-f-status').value=r?r.status:'Pending';
+  document.getElementById('rfq-btn-del').style.display=r?'':'none';
+  document.getElementById('rfq-modal-bg').classList.add('open');
+}
+function closeRFQModal(){document.getElementById('rfq-modal-bg').classList.remove('open');}
+
+async function saveRFQ(){
+  const scope=document.getElementById('rfq-f-scope').value.trim();
+  if(!scope){alert('Please enter a scope description.');return;}
+  const data={no:document.getElementById('rfq-f-no').value.trim()||'–',scope,site:document.getElementById('rfq-f-site').value.trim(),ref:document.getElementById('rfq-f-ref').value.trim()||'–',status:document.getElementById('rfq-f-status').value,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
+  closeRFQModal();
+  if(useFirebase&&db){
+    try{
+      if(editRFQId){await db.collection('ng_rfqs').doc(editRFQId).update(data);showToast('RFQ updated ✓');}
+      else{await db.collection('ng_rfqs').add({...data,createdAt:Date.now()});showToast('RFQ added ✓');}
+      return;
+    }catch(e){console.warn('Firebase error',e);}
+  }
+  if(editRFQId){const i=rfqs.findIndex(x=>x._id===editRFQId);if(i>=0)rfqs[i]={...rfqs[i],...data};}
+  else rfqs.unshift({_id:'l'+Date.now(),...data});
+  renderRFQ();showToast(editRFQId?'RFQ updated ✓':'RFQ added ✓');
+}
+
+async function deleteRFQ(){
+  if(!editRFQId)return;
+  if(!confirm('Delete this RFQ?'))return;
+  closeRFQModal();
+  if(useFirebase&&db){try{await db.collection('ng_rfqs').doc(editRFQId).delete();showToast('RFQ deleted');return;}catch(e){}}
+  rfqs=rfqs.filter(x=>x._id!==editRFQId);renderRFQ();showToast('RFQ deleted');
+}
+async function confirmDeleteRFQ(id){
+  if(!confirm('Delete this RFQ?'))return;
+  if(useFirebase&&db){try{await db.collection('ng_rfqs').doc(id).delete();showToast('RFQ deleted');return;}catch(e){}}
+  rfqs=rfqs.filter(x=>x._id!==id);renderRFQ();showToast('RFQ deleted');
 }
 
 function switchTab(name,el){
