@@ -113,6 +113,9 @@ select:focus,input:focus{border-color:var(--red)}
 .toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 .update-flash{position:fixed;top:60px;right:16px;background:#2E7D32;color:#fff;padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;z-index:500;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;display:flex;align-items:center;gap:6px}
+.card-modified{font-size:10px;color:var(--text3);margin-top:5px;display:flex;align-items:center;gap:3px;border-top:1px solid var(--border);padding-top:5px}
+.card-modified i{font-size:10px}
+.modified-info-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px}
 .update-flash.show{opacity:1;transform:translateY(0)}
 @media(max-width:700px){.board{grid-template-columns:1fr}.q-summ{grid-template-columns:repeat(2,1fr)}.f2{grid-template-columns:1fr}.topbar h1{display:none}.hstat-l{display:none}.search-input{width:110px}}
 </style>
@@ -184,7 +187,7 @@ select:focus,input:focus{border-color:var(--red)}
     </div>
     <div class="list-container" id="list-view">
       <table class="ltable">
-        <thead><tr><th>Task</th><th>Assigned To</th><th>Category</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Last Updated By</th></tr></thead>
+        <thead><tr><th>Task</th><th>Assigned To</th><th>Category</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Last Modified</th></tr></thead>
         <tbody id="list-body"></tbody>
       </table>
     </div>
@@ -350,6 +353,15 @@ select:focus,input:focus{border-color:var(--red)}
     </div>
   </div>
   <div class="fr"><label>Deadline Date</label><input id="f-deadline" type="date"></div>
+  <div id="f-modified-wrap" style="display:none;margin-bottom:13px">
+    <div class="modified-info-box">
+      <i class="ti ti-clock-edit" style="font-size:13px;color:var(--text3)"></i>
+      <div style="line-height:1.5">
+        <span style="font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">Last Modified</span><br>
+        <span id="f-modified-text" style="font-size:12px;color:var(--text)"></span>
+      </div>
+    </div>
+  </div>
   <div class="m-actions">
     <button class="btn-del" id="btn-del" style="display:none" onclick="deleteTask()"><i class="ti ti-trash"></i> Delete</button>
     <button class="btn-cancel" id="btn-clone" style="display:none" onclick="cloneTask()"><i class="ti ti-copy"></i> Clone</button>
@@ -625,9 +637,30 @@ function deadlineBadge(deadline,status){
   }
 }
 
+function cardModifiedHTML(t){
+  if(!t.updatedBy&&!t.updatedAt)return'';
+  let dateStr='';
+  if(t.updatedAt){
+    try{
+      const d=new Date(t.updatedAt);
+      const now=new Date();
+      const diffMs=now-d;
+      const diffMins=Math.floor(diffMs/60000);
+      const diffHrs=Math.floor(diffMs/3600000);
+      const diffDays=Math.floor(diffMs/86400000);
+      if(diffMins<1)dateStr='just now';
+      else if(diffMins<60)dateStr=diffMins+'m ago';
+      else if(diffHrs<24)dateStr=diffHrs+'h ago';
+      else if(diffDays<7)dateStr=diffDays+'d ago';
+      else dateStr=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+    }catch(e){}
+  }
+  return '<div class="card-modified"><i class="ti ti-pencil"></i>'+(t.updatedBy||'')+(dateStr?' · <span>'+dateStr+'</span>':'')+'</div>';
+}
+
 function cardHTML(t){
   const sub=t.desc?(t.desc.split('\n')[0]+(t.desc.split('\n').length>1?'…':'')):'';
-  return '<div class="card p-'+(t.priority||'medium')+'" draggable="true" ondragstart="ds(event,\''+t.id+'\')" onclick="editTask(\''+t.id+'\')"><div class="card-title">'+t.title+'</div>'+(sub?'<div class="card-sub">'+sub+'</div>':'')+deadlineBadge(t.deadline,t.status)+'<div class="card-foot" style="margin-top:6px"><div class="card-foot-left">'+avHTML(t.assignee)+'<span class="aname">'+t.assignee+'</span></div><span class="cat-badge">'+(t.cat||'')+'</span></div></div>';
+  return '<div class="card p-'+(t.priority||'medium')+'" draggable="true" ondragstart="ds(event,\''+t.id+'\')" onclick="editTask(\''+t.id+'\')"><div class="card-title">'+t.title+'</div>'+(sub?'<div class="card-sub">'+sub+'</div>':'')+deadlineBadge(t.deadline,t.status)+'<div class="card-foot" style="margin-top:6px"><div class="card-foot-left">'+avHTML(t.assignee)+'<span class="aname">'+t.assignee+'</span></div><span class="cat-badge">'+(t.cat||'')+'</span></div>'+cardModifiedHTML(t)+'</div>';
 }
 
 function render(){
@@ -643,9 +676,21 @@ function render(){
   renderList(f);
 }
 
+function fmtModified(updatedBy,updatedAt){
+  if(!updatedBy&&!updatedAt)return'<span style="color:var(--text3)">–</span>';
+  let dateStr='';
+  if(updatedAt){
+    try{
+      const d=new Date(updatedAt);
+      dateStr=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    }catch(e){}
+  }
+  return '<div style="line-height:1.4">'+(updatedBy?'<span style="font-weight:500;font-size:11px">'+updatedBy+'</span>':'')+(dateStr?'<br><span style="font-size:10px;color:var(--text3)">'+dateStr+'</span>':'')+'</div>';
+}
+
 function renderList(f){
   const lb=document.getElementById('list-body');if(!lb)return;
-  lb.innerHTML=f.map(t=>'<tr onclick="editTask(\''+t.id+'\')"><td><strong style="font-size:12px;font-weight:500">'+t.title+'</strong>'+(t.desc?'<br><span style="font-size:10px;color:var(--text2)">'+t.desc.split('\n').slice(0,2).join(' · ')+'</span>':'')+'</td><td><div style="display:flex;align-items:center;gap:5px">'+avHTML(t.assignee,18)+'<span>'+t.assignee+'</span></div></td><td><span class="cat-badge">'+(t.cat||'')+'</span></td><td><span style="font-size:11px;font-weight:600;color:'+(t.priority==='high'?'#E53935':t.priority==='medium'?'#FB8C00':'#43A047')+'">'+(t.priority||'medium').charAt(0).toUpperCase()+(t.priority||'medium').slice(1)+'</span></td><td><span class="sp '+(STCL[t.status]||'s-todo')+'">'+(STMAP[t.status]||'To Do')+'</span></td><td>'+deadlineBadge(t.deadline,t.status)+'</td><td style="font-size:11px;color:var(--text2)">'+(t.updatedBy||'–')+'</td></tr>').join('');
+  lb.innerHTML=f.map(t=>'<tr onclick="editTask(\''+t.id+'\')"><td><strong style="font-size:12px;font-weight:500">'+t.title+'</strong>'+(t.desc?'<br><span style="font-size:10px;color:var(--text2)">'+t.desc.split('\n').slice(0,2).join(' · ')+'</span>':'')+'</td><td><div style="display:flex;align-items:center;gap:5px">'+avHTML(t.assignee,18)+'<span>'+t.assignee+'</span></div></td><td><span class="cat-badge">'+(t.cat||'')+'</span></td><td><span style="font-size:11px;font-weight:600;color:'+(t.priority==='high'?'#E53935':t.priority==='medium'?'#FB8C00':'#43A047')+'">'+(t.priority||'medium').charAt(0).toUpperCase()+(t.priority||'medium').slice(1)+'</span></td><td><span class="sp '+(STCL[t.status]||'s-todo')+'">'+(STMAP[t.status]||'To Do')+'</span></td><td>'+deadlineBadge(t.deadline,t.status)+'</td><td>'+fmtModified(t.updatedBy,t.updatedAt)+'</td></tr>').join('');
 }
 
 function openModal(st){
@@ -656,6 +701,7 @@ function openModal(st){
   document.getElementById('f-status').value=st||'todo';
   document.getElementById('f-cat').value='Operations';document.getElementById('f-priority').value='medium';
   document.getElementById('f-deadline').value='';
+  document.getElementById('f-modified-wrap').style.display='none';
   document.getElementById('btn-del').style.display='none';
   document.getElementById('btn-clone').style.display='none';
   document.getElementById('modal-bg').classList.add('open');
@@ -671,6 +717,22 @@ function editTask(id){
   document.getElementById('f-deadline').value=t.deadline||'';
   document.getElementById('btn-del').style.display='';
   document.getElementById('btn-clone').style.display='';
+  // Show last modified info
+  const mwrap=document.getElementById('f-modified-wrap');
+  const mtext=document.getElementById('f-modified-text');
+  if(t.updatedBy||t.updatedAt){
+    let txt=t.updatedBy||'';
+    if(t.updatedAt){
+      try{
+        const d=new Date(t.updatedAt);
+        txt+=(txt?' · ':'')+d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' at '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      }catch(e){}
+    }
+    mtext.textContent=txt;
+    mwrap.style.display='';
+  }else{
+    mwrap.style.display='none';
+  }
   document.getElementById('modal-bg').classList.add('open');
 }
 
