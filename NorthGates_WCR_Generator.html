@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>North Gates – WCR Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#C41230;--dark:#1c1c1c;--mid:#666;--light:#f7f6f4;--border:#e2e0dc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#eceae6;color:var(--dark);min-height:100vh}
+.bar{background:var(--red);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.bar-l{display:flex;align-items:center;gap:10px}
+.bar-title{color:#fff;font-size:15px;font-weight:700}
+.bar-sub{color:rgba(255,255,255,.65);font-size:11px}
+.btn-bar{background:#fff;color:var(--red);border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .15s}
+.btn-bar:hover{background:#ffeaed}
+.btn-bar.word{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.btn-bar.word:hover{background:rgba(255,255,255,.25)}
+.bar-btns{display:flex;gap:8px}
+.wrap{max-width:900px;margin:0 auto;padding:24px 18px 70px;display:flex;flex-direction:column;gap:16px}
+.card{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.ch{background:var(--dark);color:#fff;padding:9px 16px;font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase}
+.cb{padding:16px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;font-weight:700;color:#999;letter-spacing:.7px;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;color:var(--dark);background:#fafaf9;width:100%;transition:border .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--red);background:#fff}
+.fg textarea{resize:vertical;min-height:60px;line-height:1.5}
+.fg input[readonly]{background:#f0ede8;color:#888}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.wi{border:1px solid var(--border);border-radius:7px;background:#fafaf9;margin-bottom:10px;overflow:hidden}
+.wi-h{background:#f0ede8;padding:7px 12px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#555}
+.wi-b{padding:12px;display:flex;flex-direction:column;gap:10px}
+.btn-add{width:100%;background:transparent;border:1.5px dashed var(--red);color:var(--red);border-radius:6px;padding:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-add:hover{background:#fff4f5}
+.btn-rm{background:none;border:none;cursor:pointer;color:#b44;font-size:11px;padding:2px 6px;border-radius:4px}
+.btn-rm:hover{background:#fde8e8}
+.st-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+.st{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);color:#777;transition:all .12s;user-select:none}
+.st input{display:none}
+.s-comp{border-color:#2e7d32;background:#e8f5e9;color:#2e7d32}
+.s-prog{border-color:#e65100;background:#fff3e0;color:#e65100}
+.s-pend{border-color:#c62828;background:#ffebee;color:#c62828}
+.s-na{border-color:#888;background:#f5f5f5;color:#777}
+.pb-label{font-size:11px;color:#888;margin-bottom:3px}
+.pb-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pb-bg{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.pb-fill{height:100%;border-radius:4px;transition:width .3s}
+.pb-pct{font-size:11px;font-weight:700;min-width:32px;text-align:right}
+.up-zone{border:2px dashed var(--border);border-radius:8px;padding:22px;text-align:center;cursor:pointer;background:#fafaf9;transition:all .15s}
+.up-zone:hover{border-color:var(--red);background:#fff4f5}
+.up-zone p{font-size:12px;color:#999;margin-top:6px}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.pt{position:relative;border-radius:7px;overflow:hidden;background:#eee;cursor:pointer}
+.pt img{width:100%;height:160px;display:block;object-fit:cover}
+.pt .pt-cap{background:rgba(0,0,0,.65);padding:4px 8px}
+.pt .pt-cap input{background:transparent;border:none;color:#fff;font-size:11px;font-family:'Inter',sans-serif;width:100%;padding:0}
+.pt .pt-cap input::placeholder{color:rgba(255,255,255,.5)}
+.pt .pt-del{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.55);border:none;border-radius:50%;color:#fff;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:1000;align-items:center;justify-content:center;flex-direction:column}
+#lb.open{display:flex}
+#lb img{max-width:92vw;max-height:82vh;object-fit:contain;border-radius:6px}
+#lb-cap{color:rgba(255,255,255,.7);font-size:13px;margin-top:12px}
+#lb-close{position:absolute;top:18px;right:22px;background:none;border:none;color:#fff;font-size:30px;cursor:pointer;line-height:1}
+.logo-zone,.sig-zone{border:2px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;background:#fafaf9;transition:all .15s;min-height:70px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.logo-zone:hover,.sig-zone:hover{border-color:var(--red)}
+.logo-prev{max-height:50px;max-width:150px;object-fit:contain}
+.sig-prev{max-height:44px;max-width:130px;object-fit:contain}
+.qi-area{border:2px dashed var(--border);border-radius:8px;padding:16px;background:#fafaf9}
+.qi-parsed{display:none;margin-top:12px;background:#f0fdf4;border:1px solid #b7dfb8;border-radius:7px;padding:12px}
+.qi-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:12px;color:#333;line-height:1.5;cursor:pointer}
+.qi-item input[type=checkbox]{accent-color:var(--red);width:14px;height:14px;margin-top:2px;flex-shrink:0}
+.qi-add-btn{background:var(--red);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px}
+#toast{position:fixed;bottom:22px;right:22px;background:var(--dark);color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999}
+#toast.show{opacity:1}
+@media(max-width:640px){.g2,.g4{grid-template-columns:1fr}.pg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div id="lb">
+  <button id="lb-close" onclick="closeLB()">×</button>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-cap"></div>
+</div>
+
+<div class="bar">
+  <div class="bar-l">
+    <div id="bar-logo-wrap">
+      <svg width="72" height="26" viewBox="0 0 72 26"><rect width="72" height="26" rx="4" fill="rgba(255,255,255,.18)"/><text x="36" y="17" text-anchor="middle" fill="white" font-size="9.5" font-family="Inter" font-weight="700">NORTH GATES</text></svg>
+    </div>
+    <div>
+      <div class="bar-title">WCR / WPR Generator</div>
+      <div class="bar-sub">Work Completion · Weekly Progress Report</div>
+    </div>
+  </div>
+  <div class="bar-btns">
+    <button class="btn-bar word" onclick="generateWord()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+      Word
+    </button>
+    <button class="btn-bar" onclick="generatePDF()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 16V4m0 12l-4-4m4 4l4-4M4 20h16"/></svg>
+      PDF
+    </button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- LOGO -->
+<div class="card">
+  <div class="ch">Company Logo</div>
+  <div class="cb" style="display:flex;gap:16px;align-items:center">
+    <div class="logo-zone" id="logo-zone" onclick="document.getElementById('logo-inp').click()" style="min-width:130px;flex:0 0 130px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M4 20l5-5 3 3 3-3 5 5"/></svg>
+      <p style="font-size:11px;color:#aaa;margin-top:5px"><strong style="color:var(--red)">Upload Logo</strong><br>PNG / JPG</p>
+    </div>
+    <input type="file" id="logo-inp" accept="image/*" style="display:none" onchange="handleLogo(this)">
+    <div style="font-size:12px;color:#888;line-height:1.9">
+      <strong style="font-size:13px;color:var(--dark)">North Gates Technical & Contracting Services</strong><br>
+      Al Marrar Al Frij Building, Al Marrarr, Dubai 237739, U.A.E<br>
+      TRN: 104547139600003 &nbsp;|&nbsp; Tel: +971 (0) 50 100 2389<br>
+      northgatesco@gmail.com &nbsp;·&nbsp; www.northgatesco.com
+    </div>
+  </div>
+</div>
+
+<!-- REPORT INFO -->
+<div class="card">
+  <div class="ch">Report Information</div>
+  <div class="cb">
+    <div class="g4">
+      <div class="fg"><label>Report Type</label>
+        <select id="rType" onchange="updateNo()">
+          <option value="WCR">Work Completion Report</option>
+          <option value="WPR">Weekly Progress Report</option>
+        </select>
+      </div>
+      <div class="fg"><label>Report No.</label><input type="text" id="rNo"></div>
+      <div class="fg"><label>Report Date</label><input type="date" id="rDate"></div>
+      <div class="fg"><label>Rev. No.</label><input type="text" id="rRev" value="02"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT DETAILS -->
+<div class="card">
+  <div class="ch">Project Details</div>
+  <div class="cb" style="display:flex;flex-direction:column;gap:12px">
+    <div class="g2">
+      <div class="fg"><label>Project Name</label><input type="text" id="pName" placeholder="Project name"></div>
+      <div class="fg"><label>Project No.</label><input type="text" id="pNo" placeholder="NG-PRJ-2025-XX"></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Client / Employer</label><input type="text" id="pClient" placeholder="Client name"></div>
+      <div class="fg"><label>Client Contact</label><input type="text" id="pClientCon" placeholder="Contact person & number"></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Site Location</label><input type="text" id="pSite" placeholder="Building / Area / Emirate"></div>
+      <div class="fg"><label>Consultant / Engineer</label><input type="text" id="pConsult" placeholder="Supervising engineer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE IMPORT -->
+<div class="card">
+  <div class="ch">Import Scope from Quote <span style="font-size:9px;font-weight:400;opacity:.65;margin-left:8px;letter-spacing:0">Paste quote text to auto-fill work items</span></div>
+  <div class="cb">
+    <div class="qi-area">
+      <p style="font-size:12px;color:#888;margin-bottom:8px">Paste your quote / scope of work text — items will be extracted automatically:</p>
+      <textarea id="qi-text" rows="5" style="border:1px solid var(--border);border-radius:6px;padding:9px;font-family:'Inter',sans-serif;font-size:12.5px;width:100%;background:#fff;color:var(--dark);resize:vertical" placeholder="e.g.&#10;1. Main door cylinder replaced&#10;2. Supply and replace kitchen exhaust fan&#10;3. Repair and polishing main door"></textarea>
+      <button class="btn-add" style="margin-top:8px;width:auto;padding:8px 20px" onclick="parseQuote()">⚡ Parse &amp; Preview Items</button>
+    </div>
+    <div class="qi-parsed" id="qi-parsed">
+      <strong style="font-size:12px;display:block;margin-bottom:8px;color:var(--dark)">Detected Items — check to import:</strong>
+      <div id="qi-list"></div>
+      <button class="qi-add-btn" onclick="importSelected()">Import Selected as Work Activities</button>
+    </div>
+  </div>
+</div>
+
+<!-- WORK ACTIVITIES -->
+<div class="card">
+  <div class="ch">Work Activities &amp; Scope of Work</div>
+  <div class="cb">
+    <div id="wc"></div>
+    <button class="btn-add" onclick="addWork()">+ Add Work Activity</button>
+  </div>
+</div>
+
+<!-- OVERALL PROGRESS -->
+<div class="card">
+  <div class="ch">Overall Progress</div>
+  <div class="cb">
+    <div class="g2" style="margin-bottom:14px">
+      <div class="fg"><label>Planned (%)</label><input type="number" id="pPlan" min="0" max="100" value="0" oninput="updBars()"></div>
+      <div class="fg"><label>Actual (%)</label><input type="number" id="pActual" min="0" max="100" value="0" oninput="updBars()"></div>
+    </div>
+    <div class="pb-label">Planned Progress</div>
+    <div class="pb-row"><div class="pb-bg"><div class="pb-fill" id="bp" style="width:0%;background:#aaa"></div></div><span class="pb-pct" id="lp" style="color:#888">0%</span></div>
+    <div class="pb-label">Actual Progress</div>
+    <div class="pb-row"><div class="pb-bg"><div class="pb-fill" id="ba" style="width:0%;background:var(--red)"></div></div><span class="pb-pct" id="la" style="color:var(--red)">0%</span></div>
+    <div class="fg" style="margin-top:10px"><label>Progress Remarks</label><textarea id="pRem" placeholder="Variance notes, reasons for delay..."></textarea></div>
+  </div>
+</div>
+
+<!-- PHOTOS -->
+<div class="card">
+  <div class="ch">Work / Site Photos</div>
+  <div class="cb">
+    <div class="up-zone" onclick="document.getElementById('ph-inp').click()">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5" style="display:block;margin:0 auto"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V6a4 4 0 018 0v2"/><circle cx="12" cy="14" r="2"/></svg>
+      <p><strong style="color:var(--red)">Click to upload photos</strong> · Click any photo to view full size</p>
+    </div>
+    <input type="file" id="ph-inp" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)">
+    <div class="pg" id="pg"></div>
+  </div>
+</div>
+
+<!-- REMARKS -->
+<div class="card">
+  <div class="ch">General Remarks</div>
+  <div class="cb"><div class="fg"><textarea id="gRem" rows="3" placeholder="Overall site remarks, client feedback, observations..."></textarea></div></div>
+</div>
+
+<!-- SIGNATURES -->
+<div class="card">
+  <div class="ch">Signatures &amp; Approval</div>
+  <div class="cb">
+    <div class="g2">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;padding-bottom:5px;border-bottom:1px solid #f0e0e2">Vendor / Contractor</div>
+        <div class="fg"><label>Name &amp; Designation</label><input type="text" id="vName" placeholder="e.g. Siddarth – Project Manager"></div>
+        <div class="sig-zone" id="vsig-zone" onclick="document.getElementById('vsig-inp').click()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M17 4a2 2 0 013 3L7 20l-4 1 1-4L17 4z"/></svg>
+          <p style="font-size:10px;color:#aaa;margin-top:3px">Upload signature / stamp</p>
+        </div>
+        <input type="file" id="vsig-inp" accept="image/*" style="display:none" onchange="handleSig(this,'vsig')">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;padding-bottom:5px;border-bottom:1px solid #f0e0e2">Client / Employer</div>
+        <div class="fg"><label>Name &amp; Designation</label><input type="text" id="cName" placeholder="e.g. Client Representative"></div>
+        <div class="sig-zone" id="csig-zone" onclick="document.getElementById('csig-inp').click()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M17 4a2 2 0 013 3L7 20l-4 1 1-4L17 4z"/></svg>
+          <p style="font-size:10px;color:#aaa;margin-top:3px">Upload signature / stamp</p>
+        </div>
+        <input type="file" id="csig-inp" accept="image/*" style="display:none" onchange="handleSig(this,'csig')">
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div id="toast">✓ Downloaded</div>
+
+<script>
+let logoData=null, sigData={vsig:null,csig:null}, photos=[], wCount=0;
+let rCounter=(()=>{try{return parseInt(localStorage.getItem('ng_ctr')||'0');}catch(e){return 0;}})();
+
+window.onload=()=>{
+  document.getElementById('rDate').value=new Date().toISOString().split('T')[0];
+  updateNo(); addWork();
+};
+
+function updateNo(){
+  rCounter=(()=>{try{return parseInt(localStorage.getItem('ng_ctr')||'0');}catch(e){return 0;}})();
+  const t=document.getElementById('rType').value,yr=new Date().getFullYear();
+  document.getElementById('rNo').value=`NG-${t}-${yr}-${String(rCounter+1).padStart(3,'0')}`;
+}
+function gv(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+
+function parseQuote(){
+  const txt=document.getElementById('qi-text').value;
+  if(!txt.trim()){alert('Please paste quote text first.');return;}
+  const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l.length>4);
+  const items=[];
+  const skip=['total','subtotal','tax','vat','amount','payment','terms','exclusion','notes:','looking','pricing','this quot','if any','validity','bank','account','trn','tel:','mob:','email','www.','dear','please','kindly','thank','regards','scope of work','items:','s.no','sr.no'];
+  lines.forEach(line=>{
+    const low=line.toLowerCase();
+    if(skip.some(s=>low.includes(s)))return;
+    if(/^\d{5,}/.test(line))return;
+    const clean=line.replace(/^[\d\s\.\-\*\•]+/,'').trim();
+    if(clean.length>6&&clean.length<300)items.push(clean);
+  });
+  if(!items.length){alert('No scope items detected. Try pasting numbered line items.');return;}
+  document.getElementById('qi-list').innerHTML=items.map(item=>`
+    <label class="qi-item">
+      <input type="checkbox" checked value="${item.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">
+      <span>${item}</span>
+    </label>`).join('');
+  document.getElementById('qi-parsed').style.display='block';
+}
+function importSelected(){
+  const checks=document.querySelectorAll('#qi-list input[type=checkbox]:checked');
+  if(!checks.length){alert('Select at least one item.');return;}
+  checks.forEach(cb=>addWork(cb.value));
+  document.getElementById('qi-parsed').style.display='none';
+  document.getElementById('qi-text').value='';
+  showToast(`✓ ${checks.length} item${checks.length>1?'s':''} imported`);
+}
+
+function addWork(prefill=''){
+  wCount++;
+  const id='wi'+wCount;
+  const d=document.createElement('div');
+  d.className='wi';d.id=id;
+  d.innerHTML=`
+    <div class="wi-h">
+      <span>Activity ${wCount}</span>
+      <button class="btn-rm" onclick="document.getElementById('${id}').remove()">✕ Remove</button>
+    </div>
+    <div class="wi-b">
+      <div class="fg"><label>Activity / Scope Description</label>
+        <input type="text" placeholder="Describe work done" value="${prefill.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">
+      </div>
+      <div class="fg"><label>Status</label>
+        <div class="st-row">
+          <label class="st s-comp"><input type="radio" name="s${id}" value="Completed" checked> Completed</label>
+          <label class="st"><input type="radio" name="s${id}" value="In Progress"> In Progress</label>
+          <label class="st"><input type="radio" name="s${id}" value="Pending"> Pending</label>
+          <label class="st"><input type="radio" name="s${id}" value="N/A"> N/A</label>
+        </div>
+      </div>
+      <div class="fg"><label>Remarks</label>
+        <input type="text" placeholder="Optional remarks">
+      </div>
+    </div>`;
+  document.getElementById('wc').appendChild(d);
+  d.querySelectorAll('.st').forEach(lbl=>{
+    lbl.addEventListener('click',()=>{
+      const nm=lbl.querySelector('input').name;
+      document.querySelectorAll(`input[name="${nm}"]`).forEach(r=>r.closest('.st').className='st');
+      const v=lbl.querySelector('input').value;
+      lbl.classList.add(v==='Completed'?'s-comp':v==='In Progress'?'s-prog':v==='Pending'?'s-pend':'s-na');
+    });
+  });
+}
+
+function updBars(){
+  const p=Math.min(100,Math.max(0,parseInt(document.getElementById('pPlan').value)||0));
+  const a=Math.min(100,Math.max(0,parseInt(document.getElementById('pActual').value)||0));
+  document.getElementById('bp').style.width=p+'%';document.getElementById('lp').textContent=p+'%';
+  document.getElementById('ba').style.width=a+'%';document.getElementById('la').textContent=a+'%';
+}
+
+function handleLogo(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    logoData=e.target.result;
+    document.getElementById('logo-zone').innerHTML=`<img src="${logoData}" class="logo-prev"><p style="font-size:10px;color:#aaa;margin-top:4px">Click to change</p>`;
+    document.getElementById('bar-logo-wrap').innerHTML=`<img src="${logoData}" style="height:28px;object-fit:contain">`;
+  };
+  r.readAsDataURL(f);
+}
+function handleSig(inp,key){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    sigData[key]=e.target.result;
+    document.getElementById(key+'-zone').innerHTML=`<img src="${e.target.result}" class="sig-prev"><p style="font-size:10px;color:#aaa;margin-top:3px">Click to change</p>`;
+  };
+  r.readAsDataURL(f);
+}
+function handlePhotos(inp){
+  Array.from(inp.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=e=>{photos.push({data:e.target.result,cap:''});renderPhotos();};
+    r.readAsDataURL(f);
+  });
+  inp.value='';
+}
+function renderPhotos(){
+  document.getElementById('pg').innerHTML=photos.map((p,i)=>`
+    <div class="pt">
+      <img src="${p.data}" alt="" onclick="openLB(${i})" title="Click to enlarge">
+      <button class="pt-del" onclick="photos.splice(${i},1);renderPhotos();event.stopPropagation()">✕</button>
+      <div class="pt-cap"><input type="text" value="${p.cap}" placeholder="Caption..." oninput="photos[${i}].cap=this.value"></div>
+    </div>`).join('');
+}
+function openLB(i){
+  document.getElementById('lb-img').src=photos[i].data;
+  document.getElementById('lb-cap').textContent=photos[i].cap||`Photo ${i+1} of ${photos.length}`;
+  document.getElementById('lb').classList.add('open');
+}
+function closeLB(){document.getElementById('lb').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();});
+
+function collectWork(){
+  return Array.from(document.querySelectorAll('#wc .wi')).map((el,i)=>{
+    const inps=el.querySelectorAll('input[type=text]');
+    const radio=el.querySelector('input[type=radio]:checked');
+    return{num:i+1,activity:inps[0]?.value||'',status:radio?.value||'',remarks:inps[1]?.value||''};
+  });
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function bumpCounter(){
+  try{const c=(()=>{try{return parseInt(localStorage.getItem('ng_ctr')||'0');}catch(e){return 0;}})();localStorage.setItem('ng_ctr',String(c+1));}catch(e){}
+  updateNo();
+}
+
+// ─────────────────────────────────────────────────────
+// SHARED: resize image to fixed dimensions via canvas
+// w, h in pixels. Returns base64 JPEG.
+// ─────────────────────────────────────────────────────
+function resizeImage(src, w, h){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      // fill white background (for PNG transparency)
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(0,0,w,h);
+      // fit image inside box keeping aspect ratio, centred
+      const scale=Math.min(w/img.width, h/img.height);
+      const sw=img.width*scale, sh=img.height*scale;
+      const ox=(w-sw)/2, oy=(h-sh)/2;
+      ctx.drawImage(img,ox,oy,sw,sh);
+      resolve(canvas.toDataURL('image/jpeg',0.92));
+    };
+    img.src=src;
+  });
+}
+
+// ─────────────────────────────────────────────────────
+// PDF GENERATION
+// ─────────────────────────────────────────────────────
+async function generatePDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const PW=210,PH=297,ML=12,MR=12;
+  const CW=PW-ML-MR; // 186mm
+
+  // fixed photo size in mm for PDF grid (3 per row)
+  const PHOTO_COLS=3, PHOTO_GAP=3;
+  const PHOTO_W=(CW-(PHOTO_COLS-1)*PHOTO_GAP)/PHOTO_COLS; // ~60mm
+  const PHOTO_H=45; // fixed 45mm height for all photos
+
+  // fixed logo size in PDF header
+  const LOGO_W=36, LOGO_H=16;
+
+  const RED=[196,18,48],DARK=[28,28,28],DGRAY=[90,90,90],
+        WHITE=[255,255,255],ROWW=[255,255,255],ROWA=[248,247,245],
+        CELLBG=[244,243,241],BD=[210,208,204];
+
+  const rType=gv('rType');
+  const rTitle=rType==='WPR'?'WEEKLY PROGRESS REPORT':'WORK COMPLETION REPORT';
+  const rNo=gv('rNo'),rDate=gv('rDate');
+  let y=0;
+
+  function newPage(){drawFoot();doc.addPage();drawHead();}
+  function chk(n){if(y+n>PH-16)newPage();}
+
+  function drawHead(){
+    doc.setFillColor(...RED);doc.rect(0,0,PW,22,'F');
+    // Logo — fixed size, vertically centred in band
+    if(logoData){
+      try{doc.addImage(logoData,'PNG',ML,(22-LOGO_H)/2,LOGO_W,LOGO_H);}catch(e){}
+    } else {
+      doc.setTextColor(...WHITE);doc.setFont('helvetica','bold');doc.setFontSize(11);
+      doc.text('NORTH GATES',ML,13);
+    }
+    // Title centre
+    doc.setTextColor(...WHITE);doc.setFont('helvetica','bold');doc.setFontSize(14.5);
+    doc.text(rTitle,PW/2,10,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(255,215,220);
+    doc.text('North Gates Technical & Contracting Services  ·  Solutions Beyond Boundaries',PW/2,16.5,{align:'center'});
+    // Right meta
+    doc.setFontSize(7.5);doc.setTextColor(255,225,230);
+    doc.text(`${rNo}  |  Rev: ${gv('rRev')||'02'}`,PW-MR,9,{align:'right'});
+    doc.text(rDate,PW-MR,15.5,{align:'right'});
+    y=26;
+  }
+
+  function drawFoot(){
+    const fy=PH-12;
+    doc.setFillColor(244,243,241);doc.rect(0,fy,PW,12,'F');
+    doc.setDrawColor(...BD);doc.line(0,fy,PW,fy);
+    doc.setTextColor(...DGRAY);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+    doc.text('North Gates Technical & Contracting Services  ·  Al Marrar, Dubai 237739, UAE  ·  TRN: 104547139600003  ·  +971 (0) 50 100 2389  ·  northgatesco@gmail.com  ·  www.northgatesco.com',PW/2,fy+5,{align:'center'});
+    doc.text(`Page ${doc.internal.getCurrentPageInfo().pageNumber}`,PW-MR,fy+9,{align:'right'});
+  }
+
+  function secBanner(title){
+    chk(10);
+    doc.setFillColor(40,40,40);doc.rect(ML,y,CW,7,'F');
+    doc.setTextColor(...WHITE);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+    doc.text(title,ML+4,y+5);
+    y+=9;
+  }
+
+  function infoGrid(pairs,cols){
+    const rH=7,cW=CW/cols;
+    let col=0;
+    pairs.forEach(([lbl,val])=>{
+      const x=ML+col*cW;
+      doc.setFillColor(...CELLBG);doc.setDrawColor(...BD);
+      doc.rect(x,y,cW*0.38,rH,'FD');
+      doc.setFillColor(...WHITE);doc.rect(x+cW*0.38,y,cW*0.62,rH,'FD');
+      doc.setTextColor(...DGRAY);doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+      doc.text(String(lbl),x+2,y+rH/2+2);
+      doc.setTextColor(...DARK);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      doc.text(doc.splitTextToSize(String(val||'—'),cW*0.62-4)[0],x+cW*0.38+2,y+rH/2+2);
+      col++;
+      if(col>=cols){col=0;y+=rH;chk(8);}
+    });
+    if(col>0)y+=rH;
+    y+=2;
+  }
+
+  // Activity table — only: #, Activity, Status, Remarks
+  function activityTable(works){
+    if(!works.length){
+      doc.setTextColor(...DGRAY);doc.setFontSize(8);
+      doc.text('No work activities recorded.',ML+2,y+5);y+=10;return;
+    }
+    // cols: #(5%), Activity(58%), Status(16%), Remarks(21%)
+    const cws=[CW*0.05, CW*0.58, CW*0.16, CW*0.21];
+    const heads=['#','Activity / Scope of Work','Status','Remarks'];
+    const HDR_H=7;
+    chk(HDR_H+8);
+    doc.setFillColor(50,50,50);
+    let cx=ML;
+    heads.forEach((h,i)=>{
+      doc.rect(cx,y,cws[i],HDR_H,'F');
+      doc.setTextColor(...WHITE);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+      const align=i===0||i===2?'center':'left';
+      doc.text(h,cx+(align==='center'?cws[i]/2:3),y+HDR_H/2+2,{align});
+      cx+=cws[i];
+    });
+    y+=HDR_H;
+
+    works.forEach((w,ri)=>{
+      const descLines=doc.splitTextToSize(w.activity||'—',cws[1]-6);
+      const lineH=4.5;
+      const rowH=Math.max(8,descLines.length*lineH+4);
+      chk(rowH+2);
+
+      const bg=ri%2===0?ROWW:ROWA;
+      doc.setFillColor(...bg);doc.setDrawColor(...BD);
+      cx=ML;
+      cws.forEach(cw=>{doc.rect(cx,y,cw,rowH,'FD');cx+=cw;});
+
+      const stC=w.status==='Completed'?[46,125,50]:w.status==='In Progress'?[200,80,0]:w.status==='Pending'?[198,40,40]:[100,100,100];
+
+      cx=ML;
+      // #
+      doc.setTextColor(...DARK);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      doc.text(String(w.num),cx+cws[0]/2,y+rowH/2+2,{align:'center'});cx+=cws[0];
+      // activity — wrapped
+      doc.setTextColor(...DARK);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      descLines.forEach((ln,li)=>doc.text(ln,cx+3,y+5+li*lineH));
+      cx+=cws[1];
+      // status — coloured bold centred
+      doc.setTextColor(...stC);doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+      doc.text(w.status||'—',cx+cws[2]/2,y+rowH/2+2,{align:'center'});cx+=cws[2];
+      // remarks
+      doc.setTextColor(...DARK);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      doc.text(doc.splitTextToSize(w.remarks||'—',cws[3]-4)[0],cx+3,y+rowH/2+2);
+      y+=rowH;
+    });
+    y+=3;
+  }
+
+  // ---- BUILD ----
+  drawHead();
+
+  secBanner('Report Information');
+  infoGrid([
+    ['Report No.',rNo],
+    ['Report Type',rType==='WPR'?'Weekly Progress Report':'Work Completion Report'],
+    ['Report Date',rDate],
+    ['Rev. No.',gv('rRev')||'02'],
+  ],4);
+
+  secBanner('Project Details');
+  infoGrid([
+    ['Project Name',gv('pName')],['Project No.',gv('pNo')],
+    ['Client/Employer',gv('pClient')],['Client Contact',gv('pClientCon')],
+    ['Site Location',gv('pSite')],['Consultant',gv('pConsult')],
+    ['Company','North Gates Technical & Contracting Services'],['TRN','104547139600003'],
+    ['Address','Al Marrar, Dubai 237739, UAE'],['Contact','+971 (0) 50 100 2389 · northgatesco@gmail.com'],
+  ],2);
+
+  secBanner('Work Activities & Scope of Work');
+  activityTable(collectWork());
+
+  // Progress
+  secBanner('Overall Progress');
+  const plan=parseInt(document.getElementById('pPlan').value)||0;
+  const act=parseInt(document.getElementById('pActual').value)||0;
+  const bW=CW-40;
+  chk(28);
+  // planned bar
+  doc.setFillColor(232,231,229);doc.setDrawColor(...BD);doc.rect(ML,y,bW,8,'FD');
+  if(plan>0){doc.setFillColor(150,150,150);doc.rect(ML,y,bW*plan/100,8,'F');}
+  doc.setTextColor(...DARK);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text(`Planned: ${plan}%`,ML+bW+4,y+5.5);
+  y+=12;
+  // actual bar
+  doc.setFillColor(232,231,229);doc.setDrawColor(...BD);doc.rect(ML,y,bW,8,'FD');
+  if(act>0){doc.setFillColor(...RED);doc.rect(ML,y,bW*act/100,8,'F');}
+  doc.text(`Actual: ${act}%`,ML+bW+4,y+5.5);
+  y+=12;
+
+  const pRem=gv('pRem');
+  if(pRem){
+    chk(10);
+    doc.setFillColor(...CELLBG);doc.setDrawColor(...BD);doc.rect(ML,y,CW,9,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(8);
+    doc.setTextColor(...DGRAY);doc.text('Remarks:',ML+2,y+6);
+    doc.setTextColor(...DARK);doc.text(doc.splitTextToSize(pRem,CW-28)[0],ML+22,y+6);
+    y+=12;
+  }
+  y+=2;
+
+  const gRem=gv('gRem');
+  if(gRem){
+    secBanner('General Remarks');chk(18);
+    doc.setFillColor(...CELLBG);doc.setDrawColor(...BD);doc.rect(ML,y,CW,16,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...DARK);
+    doc.text(doc.splitTextToSize(gRem,CW-6).slice(0,3),ML+3,y+6);
+    y+=19;
+  }
+
+  // Photos — resize all to same pixel dimensions before placing
+  if(photos.length>0){
+    newPage();secBanner('Work / Site Photographs');
+    // resize all photos to same pixel canvas (600×450 px = 4:3)
+    const PXPW=600,PXPH=450;
+    const resized=await Promise.all(photos.map(p=>resizeImage(p.data,PXPW,PXPH)));
+
+    let px=ML,py=y;
+    resized.forEach((imgData,i)=>{
+      if(py+PHOTO_H+8>PH-16){drawFoot();doc.addPage();drawHead();py=y;}
+      doc.setFillColor(240,240,240);doc.setDrawColor(...BD);
+      doc.rect(px,py,PHOTO_W,PHOTO_H,'FD');
+      try{doc.addImage(imgData,'JPEG',px,py,PHOTO_W,PHOTO_H);}catch(e){}
+      // caption strip
+      doc.setFillColor(28,28,28);doc.rect(px,py+PHOTO_H-6,PHOTO_W,6,'F');
+      doc.setTextColor(...WHITE);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+      doc.text(doc.splitTextToSize(photos[i].cap||`Photo ${i+1}`,PHOTO_W-4)[0],px+2,py+PHOTO_H-1.5);
+      px+=PHOTO_W+PHOTO_GAP;
+      if((i+1)%PHOTO_COLS===0){px=ML;py+=PHOTO_H+9;}
+    });
+    y=py+(photos.length%PHOTO_COLS!==0?PHOTO_H+10:3);
+  }
+
+  // Signatures
+  chk(42);secBanner('Signatures & Approval');
+  const sLabels=['Vendor / Contractor','Client / Employer'];
+  const sNames=[gv('vName'),gv('cName')];
+  const sKeys=['vsig','csig'];
+  const sw=CW/2-3,sh=44;
+  // sig image size in mm — fixed
+  const SIG_W=64,SIG_H=22;
+  sKeys.forEach((key,i)=>{
+    const sx=ML+i*(sw+6);
+    doc.setFillColor(...WHITE);doc.setDrawColor(...BD);doc.rect(sx,y,sw,sh,'FD');
+    doc.setFillColor(...RED);doc.rect(sx,y,sw,7,'F');
+    doc.setTextColor(...WHITE);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text(sLabels[i],sx+sw/2,y+5,{align:'center'});
+    if(sigData[key]){
+      try{
+        // centred in sig box
+        const ox=sx+(sw-SIG_W)/2;
+        doc.addImage(sigData[key],'PNG',ox,y+9,SIG_W,SIG_H);
+      }catch(e){}
+    }
+    doc.setDrawColor(...BD);doc.line(sx+5,y+sh-9,sx+sw-5,y+sh-9);
+    doc.setTextColor(...DARK);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+    doc.text(sNames[i]||'Name & Designation',sx+sw/2,y+sh-3,{align:'center'});
+  });
+  y+=sh+6;
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...DGRAY);
+  doc.text(`Doc Ref: ${rNo}`,PW-MR,y+4,{align:'right'});
+  drawFoot();
+
+  bumpCounter();
+  doc.save(`NorthGates_${gv('pNo')||'NG'}_${rNo}_${rDate.replace(/-/g,'')}.pdf`);
+  showToast('✓ PDF downloaded');
+}
+
+// ─────────────────────────────────────────────────────
+// WORD GENERATION
+// ─────────────────────────────────────────────────────
+async function generateWord(){
+  const rNo=gv('rNo'),rDate=gv('rDate'),rType=gv('rType');
+  const rTitle=rType==='WPR'?'Weekly Progress Report':'Work Completion Report';
+  const works=collectWork();
+  const plan=document.getElementById('pPlan').value||'0';
+  const act=document.getElementById('pActual').value||'0';
+
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function stColor(s){return s==='Completed'?'#2e7d32':s==='In Progress'?'#c45000':s==='Pending'?'#c62828':'#777';}
+
+  // Resize logo and sig images to fixed px for Word
+  // Logo: 160×70 px; sig: 180×65 px; photos: 260×195 px (4:3)
+  const logoW=logoData?await resizeImage(logoData,320,140):null;
+  const vsigW=sigData.vsig?await resizeImage(sigData.vsig,520,190):null;
+  const csigW=sigData.csig?await resizeImage(sigData.csig,520,190):null;
+  // Resize all photos to fixed 260×195
+  const photoImgs=await Promise.all(photos.map(p=>resizeImage(p.data,780,585)));
+
+  const logoHtml=logoW
+    ?`<img src="${logoW}" style="width:120px;height:52px;object-fit:contain;display:block">`
+    :`<div style="font-size:16px;font-weight:700;color:#C41230;letter-spacing:1px">NORTH GATES</div>`;
+  const vSigHtml=vsigW?`<img src="${vsigW}" style="width:200px;height:72px;object-fit:contain;display:block;margin:6px auto">`:'&nbsp;';
+  const cSigHtml=csigW?`<img src="${csigW}" style="width:200px;height:72px;object-fit:contain;display:block;margin:6px auto">`:'&nbsp;';
+
+  const wRows=works.map((w,i)=>`
+    <tr style="background:${i%2===0?'#ffffff':'#f8f7f5'}">
+      <td style="padding:6px 7px;border:1px solid #ddd;font-size:11px;text-align:center;color:#333;width:4%;vertical-align:top">${w.num}</td>
+      <td style="padding:6px 9px;border:1px solid #ddd;font-size:11px;color:#1c1c1c;width:62%;vertical-align:top;line-height:1.5">${esc(w.activity)||'—'}</td>
+      <td style="padding:6px 7px;border:1px solid #ddd;font-size:11px;font-weight:700;text-align:center;color:${stColor(w.status)};width:16%;vertical-align:top">${esc(w.status)||'—'}</td>
+      <td style="padding:6px 7px;border:1px solid #ddd;font-size:11px;color:#444;width:18%;vertical-align:top">${esc(w.remarks)||'—'}</td>
+    </tr>`).join('');
+
+  // Photo rows — 3 per row, all same size
+  let photoRows='';
+  for(let i=0;i<photoImgs.length;i+=3){
+    const cells=[0,1,2].map(j=>{
+      const idx=i+j;
+      if(idx>=photoImgs.length) return '<td style="width:33%;padding:4px;border:none"></td>';
+      return `<td style="width:33%;padding:4px;border:none;text-align:center">
+        <img src="${photoImgs[idx]}" style="width:100%;height:150px;object-fit:cover;display:block;border-radius:3px">
+        <div style="font-size:9px;color:#fff;background:#222;padding:2px 5px;margin-top:0;border-radius:0 0 3px 3px">${esc(photos[idx].cap)||`Photo ${idx+1}`}</div>
+      </td>`;
+    }).join('');
+    photoRows+=`<tr>${cells}</tr>`;
+  }
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+  @page{margin:16mm 14mm}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#1c1c1c;margin:0;padding:0}
+  table{border-collapse:collapse;width:100%}
+  .sec{background:#222;color:#fff;padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:14px 0 0}
+  .info-tbl td{padding:5px 9px;border:1px solid #ddd;font-size:11px;vertical-align:middle}
+  .lbl{background:#f5f4f2;font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+  .ftr{font-size:8px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:7px;margin-top:20px;line-height:1.6}
+</style></head>
+<body>
+
+<!-- NG HEADER BAR -->
+<table style="width:100%;background:#C41230;margin-bottom:0">
+  <tr>
+    <td style="padding:10px 12px;width:22%;vertical-align:middle">${logoHtml}</td>
+    <td style="padding:10px 0;text-align:center;vertical-align:middle">
+      <div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:.5px">${rTitle.toUpperCase()}</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.75);margin-top:3px">North Gates Technical &amp; Contracting Services  ·  Solutions Beyond Boundaries</div>
+    </td>
+    <td style="padding:10px 12px;width:22%;text-align:right;vertical-align:middle;font-size:9.5px;color:rgba(255,255,255,.85);line-height:1.7">
+      ${esc(rNo)}<br>Rev: ${esc(gv('rRev')||'02')}<br>${esc(rDate)}
+    </td>
+  </tr>
+</table>
+<div style="height:3px;background:#9b0f25;margin-bottom:0"></div>
+
+<div class="sec">Report Information</div>
+<table class="info-tbl"><tr>
+  <td class="lbl" style="width:13%">Report No.</td><td style="width:24%">${esc(rNo)}</td>
+  <td class="lbl" style="width:13%">Report Type</td><td style="width:24%">${esc(rTitle)}</td>
+  <td class="lbl" style="width:10%">Date</td><td>${esc(rDate)}</td>
+  <td class="lbl" style="width:6%">Rev.</td><td style="width:10%">${esc(gv('rRev')||'02')}</td>
+</tr></table>
+
+<div class="sec">Project Details</div>
+<table class="info-tbl">
+  <tr>
+    <td class="lbl" style="width:18%">Project Name</td><td style="width:32%">${esc(gv('pName'))||'—'}</td>
+    <td class="lbl" style="width:18%">Project No.</td><td>${esc(gv('pNo'))||'—'}</td>
+  </tr><tr>
+    <td class="lbl">Client / Employer</td><td>${esc(gv('pClient'))||'—'}</td>
+    <td class="lbl">Client Contact</td><td>${esc(gv('pClientCon'))||'—'}</td>
+  </tr><tr>
+    <td class="lbl">Site Location</td><td>${esc(gv('pSite'))||'—'}</td>
+    <td class="lbl">Consultant</td><td>${esc(gv('pConsult'))||'—'}</td>
+  </tr><tr>
+    <td class="lbl">Company</td>
+    <td colspan="3">North Gates Technical &amp; Contracting Services  ·  TRN: 104547139600003  ·  Al Marrar, Dubai 237739, UAE</td>
+  </tr>
+</table>
+
+<div class="sec">Work Activities &amp; Scope of Work</div>
+<table>
+  <tr style="background:#333;color:#fff">
+    <th style="padding:6px 7px;font-size:9.5px;text-align:center;width:4%">#</th>
+    <th style="padding:6px 9px;font-size:9.5px;text-align:left;width:62%">Activity / Scope of Work</th>
+    <th style="padding:6px 7px;font-size:9.5px;text-align:center;width:16%">Status</th>
+    <th style="padding:6px 7px;font-size:9.5px;text-align:left;width:18%">Remarks</th>
+  </tr>
+  ${wRows}
+</table>
+
+<div class="sec">Overall Progress</div>
+<table class="info-tbl">
+  <tr>
+    <td class="lbl" style="width:10%">Planned</td>
+    <td style="width:40%">
+      <div style="background:#e0ddd8;border-radius:3px;height:10px;overflow:hidden;display:inline-block;width:70%;vertical-align:middle">
+        <div style="background:#999;height:10px;width:${plan}%"></div></div>
+      <strong style="font-size:11px;color:#555;margin-left:6px;vertical-align:middle">${plan}%</strong>
+    </td>
+    <td class="lbl" style="width:10%">Actual</td>
+    <td>
+      <div style="background:#e0ddd8;border-radius:3px;height:10px;overflow:hidden;display:inline-block;width:70%;vertical-align:middle">
+        <div style="background:#C41230;height:10px;width:${act}%"></div></div>
+      <strong style="font-size:11px;color:#C41230;margin-left:6px;vertical-align:middle">${act}%</strong>
+    </td>
+  </tr>
+  ${gv('pRem')?`<tr><td class="lbl">Remarks</td><td colspan="3">${esc(gv('pRem'))}</td></tr>`:''}
+</table>
+
+${gv('gRem')?`<div class="sec">General Remarks</div>
+<table class="info-tbl"><tr><td style="line-height:1.6">${esc(gv('gRem'))}</td></tr></table>`:''}
+
+${photos.length>0?`
+<div class="sec">Work / Site Photographs</div>
+<table style="width:100%;border-collapse:separate;border-spacing:6px 6px;margin-top:4px">
+  ${photoRows}
+</table>`:''}
+
+<div class="sec">Signatures &amp; Approval</div>
+<table style="width:100%;margin-top:2px">
+  <tr>
+    <td style="width:50%;padding-right:6px;border:none">
+      <table style="width:100%;border:1px solid #ddd">
+        <tr><td style="background:#C41230;color:#fff;font-size:9.5px;font-weight:700;text-align:center;padding:6px 10px;letter-spacing:.5px;text-transform:uppercase">VENDOR / CONTRACTOR</td></tr>
+        <tr><td style="padding:14px 12px;text-align:center;height:95px;border-bottom:1px solid #ddd;background:#fafaf9">${vSigHtml}</td></tr>
+        <tr><td style="padding:7px 10px;font-size:11px;color:#333;text-align:center;background:#f5f4f2">${esc(gv('vName'))||'Name &amp; Designation'}</td></tr>
+      </table>
+    </td>
+    <td style="width:50%;padding-left:6px;border:none">
+      <table style="width:100%;border:1px solid #ddd">
+        <tr><td style="background:#C41230;color:#fff;font-size:9.5px;font-weight:700;text-align:center;padding:6px 10px;letter-spacing:.5px;text-transform:uppercase">CLIENT / EMPLOYER</td></tr>
+        <tr><td style="padding:14px 12px;text-align:center;height:95px;border-bottom:1px solid #ddd;background:#fafaf9">${cSigHtml}</td></tr>
+        <tr><td style="padding:7px 10px;font-size:11px;color:#333;text-align:center;background:#f5f4f2">${esc(gv('cName'))||'Name &amp; Designation'}</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<div class="ftr">
+  North Gates Technical &amp; Contracting Services  ·  Al Marrar, Dubai 237739, UAE  ·  TRN: 104547139600003  ·  +971 (0) 50 100 2389  ·  northgatesco@gmail.com  ·  www.northgatesco.com<br>
+  <span style="color:#ccc">Generated: ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}  ·  Doc Ref: ${esc(rNo)}</span>
+</div>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'application/msword'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`NorthGates_${gv('pNo')||'NG'}_${rNo}_${rDate.replace(/-/g,'')}.doc`;
+  a.click();
+  bumpCounter();
+  showToast('✓ Word document downloaded');
+}
+</script>
+</body>
+</html>
