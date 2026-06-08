@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -17,7 +18,7 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;font-s
 .app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 .topbar{background:var(--red);color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:54px;flex-shrink:0;box-shadow:0 2px 8px rgba(198,40,40,.3)}
 .topbar-left{display:flex;align-items:center;gap:14px}
-.logo{background:#fff;border-radius:5px;padding:4px 10px;font-weight:600;font-size:12px;color:var(--red);letter-spacing:.6px}
+.logo-img{height:65px;width:auto;display:block;object-fit:contain;flex-shrink:0}
 .topbar h1{font-size:15px;font-weight:500;letter-spacing:.2px}
 .topbar-right{display:flex;align-items:center;gap:16px}
 .hstat{text-align:center;line-height:1}
@@ -82,7 +83,7 @@ select:focus,input:focus{border-color:var(--red)}
 .qtable td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 .qtable tr:hover td{background:var(--surface2)}
 .qbadge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.q-sent{background:#EBF5FB;color:#1565C0}.q-draft{background:#FFF3E0;color:#E65100}.q-acc{background:#EAFAF1;color:#1E8449}.q-pend{background:#FDEDEC;color:#922B21}.q-lost{background:#f3f4f6;color:#6b7280}
+.q-sent{background:#EBF5FB;color:#1565C0}.q-draft{background:#FFF3E0;color:#E65100}.q-acc{background:#EAFAF1;color:#1E8449}.q-pend{background:#FDEDEC;color:#922B21}.q-lost{background:#f3f4f6;color:#6b7280}.q-site{background:#FFF8E1;color:#F57F17}
 .deadline-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;padding:2px 6px;border-radius:20px;margin-top:4px}
 .dl-ok{background:#EAFAF1;color:#1E8449}.dl-soon{background:#FFF3E0;color:#E65100}.dl-over{background:#FDEDEC;color:#922B21}
 .btn-icon{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:var(--text3);font-size:13px;line-height:1}
@@ -125,7 +126,7 @@ select:focus,input:focus{border-color:var(--red)}
 
 <div class="topbar">
   <div class="topbar-left">
-    <div class="logo">NORTH GATES</div>
+    <img src="https://raw.githubusercontent.com/sindsubr/sindsubr.github.io/main/0%20NG%20LOGO%20FULL%202027%20WBG.png" class="logo-img" alt="North Gates">
     <h1>Internal Tracker</h1>
     <span style="font-size:11px;opacity:.7;display:flex;align-items:center;gap:5px"><span class="live-dot"></span>Live</span>
   </div>
@@ -197,6 +198,7 @@ select:focus,input:focus{border-color:var(--red)}
 <div id="tab-quotes" style="display:none;flex:1;overflow:hidden;flex-direction:column">
   <div class="toolbar">
     <button class="btn-add" onclick="openQuoteModal()"><i class="ti ti-plus"></i> New Quote</button>
+    <button class="btn-add" onclick="downloadQuotesPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> Download PDF</button>
     <select id="qf-client" onchange="renderQuotes()">
       <option value="">All Clients</option>
       <option value="Khidmah LLC">Khidmah LLC</option>
@@ -215,6 +217,7 @@ select:focus,input:focus{border-color:var(--red)}
       <option value="Accepted">Accepted</option>
       <option value="Lost">Lost</option>
     </select>
+    <input type="text" class="search-input" id="qf-search" placeholder="Search quotes..." oninput="renderQuotes()">
   </div>
   <div class="content">
     <div class="q-summ">
@@ -267,6 +270,7 @@ select:focus,input:focus{border-color:var(--red)}
     <select id="rfq-filter-status" onchange="renderRFQ()">
       <option value="">All Statuses</option>
       <option value="Pending">Pending</option>
+      <option value="Site Visit Completed">Site Visit Completed</option>
       <option value="Submitted">Submitted</option>
       <option value="Awarded">Awarded</option>
       <option value="Lost">Lost</option>
@@ -274,13 +278,15 @@ select:focus,input:focus{border-color:var(--red)}
     <select id="rfq-filter-site" onchange="renderRFQ()">
       <option value="">All Sites</option>
     </select>
+    <input type="text" class="search-input" id="rfq-search" placeholder="Search RFQs..." oninput="renderRFQ()">
     <button class="btn-add" onclick="openRFQModal()"><i class="ti ti-plus"></i> New RFQ</button>
+    <button class="btn-add" onclick="downloadRFQsPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> Download PDF</button>
   </div>
   <div class="content">
     <div class="warn-bar" id="rfq-warn-bar"><i class="ti ti-alert-triangle"></i><span id="rfq-warn-text">Loading…</span></div>
     <div class="q-wrap">
       <table class="qtable">
-        <thead><tr><th>RFQ No.</th><th>Scope / Description</th><th>Site</th><th>NG Quote Ref</th><th>Status</th><th style="width:60px"></th></tr></thead>
+        <thead><tr><th>Date</th><th>RFQ No.</th><th>Scope / Description</th><th>Site</th><th>NG Quote Ref</th><th>Status</th><th style="width:70px"></th></tr></thead>
         <tbody id="rfq-body"></tbody>
       </table>
     </div>
@@ -292,15 +298,17 @@ select:focus,input:focus{border-color:var(--red)}
 <div class="modal">
   <h2 id="rfq-modal-ttl">New RFQ</h2>
   <div class="f2">
+    <div class="fr"><label>Date</label><input id="rfq-f-date" type="date"></div>
     <div class="fr"><label>RFQ No.</label><input id="rfq-f-no" type="text" placeholder="e.g. 1000333206"></div>
-    <div class="fr"><label>Site</label><input id="rfq-f-site" type="text" placeholder="e.g. Jimi Mall"></div>
   </div>
+  <div class="fr"><label>Site</label><input id="rfq-f-site" type="text" placeholder="e.g. Jimi Mall"></div>
   <div class="fr"><label>Scope / Description</label><input id="rfq-f-scope" type="text" placeholder="e.g. Aluminium Louver Gate"></div>
   <div class="f2">
     <div class="fr"><label>NG Quote Ref</label><input id="rfq-f-ref" type="text" placeholder="e.g. NG/Q/1577 or –"></div>
     <div class="fr"><label>Status</label>
       <select id="rfq-f-status">
         <option value="Pending">Pending</option>
+        <option value="Site Visit Completed">Site Visit Completed</option>
         <option value="Submitted">Submitted</option>
         <option value="Awarded">Awarded</option>
         <option value="Lost">Lost</option>
@@ -429,34 +437,22 @@ const INI={Siddarth:'SI',Meeran:'ME',SK:'SK',Sindu:'SN'};
 const AVC={Siddarth:'av-SI',Meeran:'av-ME',SK:'av-SK',Sindu:'av-SN'};
 const STMAP={todo:'To Do',progress:'In Progress',review:'Review',done:'Done'};
 const STCL={todo:'s-todo',progress:'s-prog',review:'s-rev',done:'s-done'};
-const SEED=[
-  {id:'1',title:'EMARA TAX VAT Return',desc:'Bank OTP issue resolve\nVAT payment coordination with SK\nEMARA TAX login/access verification',assignee:'Siddarth',status:'progress',cat:'Finance',priority:'high',updatedBy:''},
-  {id:'2',title:'OTP / Landline / GPS Issue',desc:'Pending resolution\nGPS tracking/checking follow-up',assignee:'Siddarth',status:'todo',cat:'Admin',priority:'medium',updatedBy:''},
-  {id:'3',title:'Modon Registration',desc:'Mail for document download\nRegistration follow-up',assignee:'Siddarth',status:'todo',cat:'Registration',priority:'medium',updatedBy:''},
-  {id:'4',title:'ISO Documents Preparation & Submission',desc:'Pending document collection\nSubmission coordination',assignee:'Siddarth',status:'todo',cat:'Compliance',priority:'high',updatedBy:''},
-  {id:'5',title:'C36 Snag Work – Thermostat',desc:'Thermostat pending – 27 May\nDeduction discussion if not repairable\nWCR coordination',assignee:'Siddarth',status:'progress',cat:'Technical',priority:'high',updatedBy:''},
-  {id:'6',title:'Nadine Tower – Payment Follow-up',desc:'Payment collection follow-up',assignee:'Siddarth',status:'todo',cat:'Payment',priority:'medium',updatedBy:''},
-  {id:'7',title:'Awaad – Payment Follow-up',desc:'Payment collection follow-up',assignee:'Siddarth',status:'todo',cat:'Payment',priority:'medium',updatedBy:''},
-  {id:'8',title:'Shams Boutiq (Khidmah) – Payment',desc:'Payment follow-up after PR',assignee:'Siddarth',status:'todo',cat:'Payment',priority:'medium',updatedBy:''},
-  {id:'9',title:'Internal Admin Works',desc:'Registration mobile number lists\nEtisalat to Virgin migration\nLandline follow-up\nWPS check',assignee:'Siddarth',status:'todo',cat:'Admin',priority:'low',updatedBy:''},
-  {id:'10',title:'FAZMIR – Vendor Quotation',desc:'Vendor quotation pending\nPricing comparison follow-up',assignee:'Siddarth',status:'todo',cat:'Quotation',priority:'medium',updatedBy:''},
-  {id:'11',title:'Domestic Piping – WTC',desc:'Scope discussion\nQuotation planning\nTechnical proposal preparation',assignee:'Siddarth',status:'todo',cat:'Technical',priority:'high',updatedBy:''},
-  {id:'12',title:'EOL – Imdaad (1BHK & 2BHK)',desc:'1BHK (2 units): Quote & WCR prep pending\n2BHK (2 units): Quote prep & work planning',assignee:'Siddarth',status:'progress',cat:'Quotation',priority:'high',updatedBy:''},
-  {id:'13',title:'Imdaad – Chiller Vendor (SIAC)',desc:'SIAC advance payment follow-up\nWork progress monitoring\nVendor coordination',assignee:'Meeran',status:'progress',cat:'Operations',priority:'high',updatedBy:''},
-  {id:'14',title:'FAB Demolition Work',desc:'Work progress follow-up\n3 designs shared\nSimpler design discussion with client\nDeadline monitoring',assignee:'Meeran',status:'progress',cat:'Technical',priority:'high',updatedBy:''},
-  {id:'15',title:'Al Grum – Zain Capital',desc:'Scope completed\nHandover mail follow-up\nClient coordination',assignee:'Meeran',status:'review',cat:'Operations',priority:'medium',updatedBy:''},
-  {id:'16',title:'Sheika Fathima Work',desc:'ADM Permit pending\nContractor LPO pending\nPVC shade material color change\nAsteco Morganti NOC pending',assignee:'Meeran',status:'progress',cat:'Admin',priority:'high',updatedBy:''},
-  {id:'17',title:'EMARA TAX Profile Update',desc:'Update office mobile\nUpdate landline\nUpdate PO Box details',assignee:'Sindu',status:'todo',cat:'Admin',priority:'medium',updatedBy:''},
-  {id:'18',title:'Khidmah – Digital Screen Payment (3 Nos)',desc:'NOYA display unit payment follow-up\nInvoice/payment coordination',assignee:'Sindu',status:'todo',cat:'Payment',priority:'medium',updatedBy:''},
-  {id:'19',title:'Operon Payment Follow-up',desc:'Payment follow-up pending\nAccounts coordination',assignee:'Sindu',status:'todo',cat:'Payment',priority:'medium',updatedBy:''},
-  {id:'20',title:'Water Leakage Detection – NG/Q/1500',desc:'Quotation update\nReshare after invoiced quote\nAED 98,000 tracking',assignee:'Sindu',status:'progress',cat:'Quotation',priority:'high',updatedBy:''},
-  {id:'21',title:'Hills Villa – Colliers Payment',desc:'Payment follow-up [30 Days]\nWCR/payment tracking',assignee:'Sindu',status:'todo',cat:'Payment',priority:'medium',updatedBy:''},
-  {id:'22',title:'Modon Registration – Sindu',desc:'Registration follow-up mail',assignee:'Sindu',status:'todo',cat:'Registration',priority:'medium',updatedBy:''},
-  {id:'23',title:'Iliyas – Quote & ADEC Coordination',desc:'Quote mail follow-up\nADEC / Modon / Khidmah coordination',assignee:'Sindu',status:'todo',cat:'Quotation',priority:'medium',updatedBy:''},
-  {id:'24',title:'New Proposal Review',desc:'Review new enquiries\nProposal preparation planning',assignee:'Sindu',status:'todo',cat:'Quotation',priority:'low',updatedBy:''},
-  {id:'25',title:'Quotation Follow-ups – Ongoing',desc:'Pending client follow-ups\nSubmission tracking',assignee:'Sindu',status:'progress',cat:'Quotation',priority:'medium',updatedBy:''},
-  {id:'26',title:'EMARA TAX VAT Return – SK',desc:'VAT payment pending\nPayment confirmation follow-up',assignee:'SK',status:'todo',cat:'Finance',priority:'high',updatedBy:''},
-];
+const SEED=[];
+const LOGO_URL='https://raw.githubusercontent.com/sindsubr/sindsubr.github.io/main/0%20NG%20LOGO%20FULL%202027%20WBG.png';
+let _logoDataUrl=null;
+function _preloadLogo(){
+  if(_logoDataUrl)return Promise.resolve(_logoDataUrl);
+  return new Promise(res=>{
+    const img=new Image();img.crossOrigin='anonymous';
+    img.onload=()=>{
+      const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+      c.getContext('2d').drawImage(img,0,0);
+      _logoDataUrl=c.toDataURL('image/png');res(_logoDataUrl);
+    };
+    img.onerror=()=>res(null);
+    img.src=LOGO_URL;
+  });
+}
 
 
 
@@ -758,77 +754,8 @@ async function cloneTask(){
 }
 
 // QUOTES
-const QUOTES=[
-  {date:'14 Jan 2026',no:'NG/Q/1554',client:'Khidmah LLC',scope:'Ceiling & Painting – V3 Tower',loc:'V3 Tower, Dubai',amt:1124025,status:'Sent'},
-  {date:'24 Mar 2026',no:'NG/Q/1577',client:'Khidmah LLC',scope:'Epoxy Floor Coating, B6 Parking',loc:'WTC Parking B6',amt:178500,status:'Sent'},
-  {date:'09 Apr 2026',no:'NG/Q/1583',client:'Khidmah LLC',scope:'Car Shade Replacement – Phase 4',loc:'Jimi Mall, Al Ain',amt:15750,status:'Sent'},
-  {date:'20 Apr 2026',no:'NG/Q/1586',client:'Khidmah LLC',scope:'Staircase Handrails Refurbishment',loc:'WTC Mall',amt:99750,status:'Sent'},
-  {date:'20 Apr 2026',no:'NG/Q/1587',client:'Khidmah LLC',scope:'Fire-Rated Wooden Doors Replacement',loc:'WTC Mall, Abu Dhabi',amt:105157.5,status:'Sent'},
-  {date:'19 May 2026',no:'NG/Q/1606',client:'Khidmah LLC',scope:'Acoustic Testing, GPR & Water Leakage Detection',loc:'Al Raha Gardens',amt:93500,status:'Sent'},
-  {date:'27 May 2026',no:'NG/Q/1500',client:'Khidmah LLC',scope:'Potable Water Leak Identification',loc:'Al Raha Gardens',amt:215000,status:'Sent'},
-  {date:'27 May 2026',no:'NG/Q/1618',client:'Khidmah LLC',scope:'Special Vehicle Stickers Supply & Installation',loc:'Yas Acres, Abu Dhabi',amt:25287.5,status:'Draft'},
-  {date:'27 May 2026',no:'NG/Q/1619',client:'Khidmah LLC',scope:'Soft Closing Gate Closer Supply & Installation',loc:'Yas Acres, Abu Dhabi',amt:24310,status:'Draft'},
-  {date:'09 May 2026',no:'NG/Q/1590',client:'M/S IMDAAD L.L.C',scope:'Rectification of Chiller',loc:'Mazaya Shopping Center',amt:35300,status:'Accepted'},
-  {date:'20 May 2026',no:'NG/Q/1608',client:'M/S IMDAAD L.L.C',scope:'EOL-SOW-R1070/D – 1BHK Unit Works',loc:'113 – 1BHK',amt:null,status:'Accepted'},
-  {date:'20 May 2026',no:'NG/Q/1609',client:'M/S IMDAAD L.L.C',scope:'Unit Renovation – 1BHK',loc:'113 – 1BHK',amt:null,status:'Accepted'},
-  {date:'21 May 2026',no:'NG/Q/1610',client:'M/S IMDAAD L.L.C',scope:'Unit Renovation – 2BHK',loc:'205 B7',amt:null,status:'Accepted'},
-  {date:'21 May 2026',no:'NG/Q/1611',client:'M/S IMDAAD L.L.C',scope:'Unit Renovation – 2BHK (B)',loc:'205 B7',amt:null,status:'Accepted'},
-  {date:'27 May 2026',no:'NG/Q/1614',client:'M/S IMDAAD L.L.C',scope:'Renovation – 216-1BHK',loc:'216 – 1BHK',amt:3614,status:'Sent'},
-  {date:'27 May 2026',no:'NG/Q/1615',client:'M/S IMDAAD L.L.C',scope:'Renovation – 216-1BHK (B)',loc:'216 – 1BHK',amt:883,status:'Sent'},
-  {date:'27 May 2026',no:'NG/Q/1616',client:'M/S IMDAAD L.L.C',scope:'Renovation – 514-2BHK',loc:'514 – 2BHK',amt:10978.55,status:'Sent'},
-  {date:'27 May 2026',no:'NG/Q/1617',client:'M/S IMDAAD L.L.C',scope:'Renovation – 514-2BHK (B)',loc:'514 – 2BHK',amt:1140,status:'Sent'},
-  {date:'25 Jan 2026',no:'NG/Q/1559',client:'Colliers',scope:'Safety Lock Replacement – Staircase Windows',loc:'Building C-60',amt:7560,status:'Sent'},
-  {date:'04 Feb 2026',no:'NG/Q/1562',client:'Colliers',scope:'AC Unit Replacement – W038 Flat 06',loc:'Building C-60',amt:7875,status:'Sent'},
-  {date:'25 May 2026',no:'NG/Q/1613',client:'Colliers',scope:'Flat Painting, Skirting & Leakage Works',loc:'C-36-503',amt:9000,status:'Sent'},
-  {date:'23 May 2026',no:'NG/Q/1612',client:'M/S KHADAMAT',scope:'Supply, Assembly & Installation of SMDB',loc:'KEZAD',amt:17700,status:'Sent'},
-  {date:'09 Dec 2025',no:'NG/Q/1524',client:'Millenium Hotel',scope:'Demolition Work',loc:'Millenium Downtown, Dubai',amt:230000,status:'Sent'},
-  {date:'02 Apr 2026',no:'NG/Q/1566',client:'Millenium Hotel',scope:'Expansion Joint Work',loc:'Millenium Crown Plaza, Dubai',amt:28000,status:'Sent'},
-  {date:'05 Jan 2026',no:'NG/Q/1539',client:'Movenpick',scope:'Glass Revolving Door – Lobby',loc:'Movenpick Hotel',amt:25896,status:'Sent'},
-  {date:'05 Jan 2026',no:'NG/Q/1540',client:'Movenpick',scope:'Facade Entrance Passage & Sliding Door',loc:'Movenpick Hotel',amt:288225,status:'Sent'},
-  {date:'11 Mar 2026',no:'NG/Q/1572',client:'Movenpick',scope:'Curved Shade Structure Fabrication',loc:'RAK Movenpick',amt:971250,status:'Sent'},
-  {date:'13 Apr 2026',no:'NG/Q/1585',client:'Mr. Ali Rashid Lootah',scope:'Painting Works Supply & Application',loc:'Dubai',amt:252000,status:'Sent'},
-  {date:'19 Jan 2026',no:'NG/Q/1557',client:'Mr. Landmark Group',scope:'Network Segregation Work',loc:'Jafza One, Dubai',amt:151515,status:'Sent'},
-  {date:'08 May 2026',no:'NG/Q/1592-Opt1',client:'Scope Properties',scope:'New Flooring – Option 1',loc:'Electra Tower GYM',amt:32917.5,status:'Sent'},
-  {date:'08 May 2026',no:'NG/Q/1592-Opt2',client:'Scope Properties',scope:'New Flooring – Option 2',loc:'Electra Tower GYM',amt:36382.5,status:'Sent'},
-  {date:'18 Mar 2026',no:'NG/Q/1573',client:'ZAIN CAPITAL',scope:'Anti-Skid Epoxy Floor Coating – B1 & B2',loc:'Dubai Health Care City',amt:141755.67,status:'Sent'},
-  {date:'18 Mar 2026',no:'NG/Q/1574',client:'ZAIN CAPITAL',scope:'Visual Inspection Report – Villa 98',loc:'Al Sadiyat',amt:57781.5,status:'Sent'},
-  {date:'30 Mar 2026',no:'NG/Q/1581',client:'ZAIN CAPITAL',scope:'Replacement of LVT Floor Tiles',loc:'MET 1505',amt:16285.5,status:'Sent'},
-  {date:'06 Apr 2026',no:'NG/Q/1582',client:'ZAIN CAPITAL',scope:'Repair Works – Al Jubail Villas',loc:'Al Jubail Villa',amt:null,status:'Sent'},
-  {date:'07 May 2026',no:'NG/Q/1591',client:'ZAIN CAPITAL',scope:'Maintenance & Renovation – Abu Dhabi Villas',loc:'Abu Dhabi Villas',amt:156633.75,status:'Sent'},
-  {date:'20 May 2026',no:'NG/Q/1607',client:'ZAIN CAPITAL',scope:'Zain Capital Works – Abu Dhabi',loc:'Abu Dhabi',amt:null,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1594',client:'Abu Dhabi Capital Group LLC',scope:'Mazyad Villa Renovation',loc:'Mazyad, Abu Dhabi',amt:308801.03,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1595',client:'Abu Dhabi Capital Group LLC',scope:'Wathba Tower Renovation',loc:'Wathba, Abu Dhabi',amt:265359.79,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1596',client:'Abu Dhabi Capital Group LLC',scope:'Wathba Corridor Renovation',loc:'Wathba, Abu Dhabi',amt:1200289.65,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1597',client:'Abu Dhabi Capital Group LLC',scope:'Wathba Reception Renovation',loc:'Wathba, Abu Dhabi',amt:26819.1,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1598',client:'Abu Dhabi Capital Group LLC',scope:'Baniyas Tower 3BHK Renovation',loc:'Baniyas, Abu Dhabi',amt:245893.55,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1599',client:'Abu Dhabi Capital Group LLC',scope:'Baniyas Tower 4BHK Renovation',loc:'Baniyas, Abu Dhabi',amt:284546.23,status:'Sent'},
-  {date:'19 May 2026',no:'NG/Q/1600',client:'Abu Dhabi Capital Group LLC',scope:'Baniyas 4BHK Duplex Renovation',loc:'Baniyas, Abu Dhabi',amt:311762.07,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1601',client:'Abu Dhabi Capital Group LLC',scope:'Baniyas Corridor Renovation',loc:'Baniyas, Abu Dhabi',amt:1570590.28,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1602',client:'Abu Dhabi Capital Group LLC',scope:'Baniyas Reception Renovation',loc:'Baniyas, Abu Dhabi',amt:83868.66,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1603',client:'Abu Dhabi Capital Group LLC',scope:'Al Dhafra Compound Renovation',loc:'Al Dhafra, Abu Dhabi',amt:354716.46,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1604',client:'Abu Dhabi Capital Group LLC',scope:'Emirates Compound Renovation',loc:'Emirates Compound, Abu Dhabi',amt:343522.62,status:'Sent'},
-  {date:'04 May 2026',no:'NG/Q/1605',client:'Abu Dhabi Capital Group LLC',scope:'Fortress Compound Renovation',loc:'Fortress Compound, Abu Dhabi',amt:289913.4,status:'Sent'},
-];
-const RFQS=[
-  {no:'1000333206',scope:'Aluminium Louver Gate',site:'Jimi Mall',ref:'–',status:'Pending'},
-  {no:'100326953',scope:'Domestic Water Piping Works',site:'WTC Tower 2',ref:'–',status:'Pending'},
-  {no:'1000332212',scope:'Monkey Ladders & Step Ladders',site:'Jimi Mall',ref:'–',status:'Pending'},
-  {no:'1000330625',scope:'Acrylic Sheet & SS Column Protection',site:'Jimi Mall',ref:'–',status:'Pending'},
-  {no:'1000331993',scope:'Drainage Leakage Rectification',site:'Jimi Mall',ref:'–',status:'Pending'},
-  {no:'1000332190',scope:'Mirrors Installation',site:'Jimi Mall – Retail Park',ref:'–',status:'Pending'},
-  {no:'1000330886',scope:'Sliding Door with Timer',site:'Jimi Mall',ref:'–',status:'Pending'},
-  {no:'1000330026',scope:'Swimming Pool & Water Feature Pumps',site:'Al Muneera',ref:'–',status:'Pending'},
-  {no:'1000328793',scope:'Chilled Water Pipeline Leakage Rectification',site:'Al Muneera',ref:'–',status:'Pending'},
-  {no:'1000327158',scope:'Revolving & Sliding Door Replacement',site:'WTC Abu Dhabi',ref:'–',status:'Pending'},
-  {no:'1000327157',scope:'Automatic Door Installation',site:'WTC Abu Dhabi',ref:'–',status:'Pending'},
-  {no:'1000327150',scope:'Parking Management & Traffic Safety Materials',site:'WTC Abu Dhabi',ref:'–',status:'Pending'},
-  {no:'1000327107',scope:'Epoxy Floor Restoration',site:'WTC B6 Parking',ref:'NG/Q/1577',status:'Submitted'},
-  {no:'1000328714',scope:'CHW Insulation Replacement',site:'IKEA Yas Mall',ref:'–',status:'Pending'},
-  {no:'1000326386',scope:'Fire Rated Doors Replacement',site:'WTC Abu Dhabi',ref:'NG/Q/1587',status:'Submitted'},
-  {no:'1000326314',scope:'Apartment Tiles Replacement',site:'WTC Abu Dhabi',ref:'–',status:'Pending'},
-  {no:'1000327059',scope:'Tempered Glass Installation',site:'Jimi Mall',ref:'–',status:'Pending'},
-  {no:'–',scope:'Acoustic Testing, GPR & Water Leakage Detection',site:'Al Raha Gardens',ref:'NG/Q/1606',status:'Submitted'},
-];
+const QUOTES=[];
+const RFQS=[];
 
 // ═══════════════════════════════════════════════════
 // QUOTES — Firebase-backed (ng_quotes collection)
@@ -860,7 +787,8 @@ function startQuoteListener(){
 function renderQuotes(){
   const cl=document.getElementById('qf-client').value;
   const st=document.getElementById('qf-status').value;
-  const f=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st));
+  const s=(document.getElementById('qf-search').value||'').toLowerCase();
+  const f=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st)&&(!s||(q.no||'').toLowerCase().includes(s)||(q.client||'').toLowerCase().includes(s)||(q.scope||'').toLowerCase().includes(s)||(q.loc||'').toLowerCase().includes(s)));
   const fmt=n=>n?'AED '+n.toLocaleString('en-AE',{minimumFractionDigits:0,maximumFractionDigits:0}):'–';
   document.getElementById('q-body').innerHTML=f.map(q=>{
     const id=q._id||'';
@@ -892,15 +820,15 @@ async function quickStatusQuote(id,val){
   if(q)q.status=val;renderQuotes();showToast('Status updated ✓');
 }
 
-function openQuoteModal(id){
+function openQuoteModal(id,prefill){
   editQuoteId=id||null;
   const q=id?quotes.find(x=>x._id===id):null;
   document.getElementById('quote-modal-ttl').textContent=q?'Edit Quote':'New Quote';
-  document.getElementById('qm-date').value=q?q.date:'';
-  document.getElementById('qm-no').value=q?q.no:'';
-  document.getElementById('qm-client').value=q?q.client:'';
-  document.getElementById('qm-scope').value=q?q.scope:'';
-  document.getElementById('qm-loc').value=q?q.loc:'';
+  document.getElementById('qm-date').value=q?q.date:(prefill&&prefill.date?prefill.date:'');
+  document.getElementById('qm-no').value=q?q.no:(prefill&&prefill.no?prefill.no:'');
+  document.getElementById('qm-client').value=q?q.client:(prefill&&prefill.client?prefill.client:'');
+  document.getElementById('qm-scope').value=q?q.scope:(prefill&&prefill.scope?prefill.scope:'');
+  document.getElementById('qm-loc').value=q?q.loc:(prefill&&prefill.loc?prefill.loc:'');
   document.getElementById('qm-amt').value=q&&q.amt?q.amt:'';
   document.getElementById('qm-status').value=q?q.status:'Draft';
   document.getElementById('quote-btn-del').style.display=q?'':'none';
@@ -972,20 +900,25 @@ function renderRFQ(){
   const siteEl=document.getElementById('rfq-filter-site');
   const curSite=siteEl.value;
   siteEl.innerHTML='<option value="">All Sites</option>'+sites.map(s=>'<option value="'+s+'" '+(s===curSite?'selected':'')+'>'+s+'</option>').join('');
-  const f=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si));
-  const pending=rfqs.filter(r=>r.status==='Pending').length;
-  document.getElementById('rfq-warn-text').innerHTML='<strong>'+pending+' Pending RFQ'+(pending!==1?'s':'')+'</strong> — quotations not yet submitted';
+  const srch=(document.getElementById('rfq-search').value||'').toLowerCase();
+  const f=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si)&&(!srch||(r.no||'').toLowerCase().includes(srch)||(r.scope||'').toLowerCase().includes(srch)||(r.site||'').toLowerCase().includes(srch)||(r.ref||'').toLowerCase().includes(srch)));
+  const pending=rfqs.filter(r=>r.status==='Pending'||r.status==='Site Visit Completed').length;
+  document.getElementById('rfq-warn-text').innerHTML='<strong>'+pending+' RFQ'+(pending!==1?'s':'')+'</strong> pending submission (Pending + Site Visit Completed)';
   document.getElementById('rfq-warn-bar').style.display=pending>0?'flex':'none';
   document.getElementById('rfq-body').innerHTML=f.map(r=>{
     const id=r._id||'';
-    const stcl=r.status==='Submitted'||r.status==='Awarded'?'q-acc':r.status==='Lost'?'q-lost':'q-pend';
+    const stcl=r.status==='Submitted'||r.status==='Awarded'?'q-acc':r.status==='Lost'?'q-lost':r.status==='Site Visit Completed'?'q-site':'q-pend';
+    const fmtDate=r.date?new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):'–';
+    const addQuoteBtn=r.status==='Submitted'?'<button class="btn-icon" onclick="addRFQToQuotes(\''+id+'\')" title="Add to Quote Register" style="color:var(--blue)"><i class="ti ti-file-plus"></i></button>':'';
     return '<tr>'
+      +'<td style="white-space:nowrap;font-size:11px;color:var(--text2)">'+fmtDate+'</td>'
       +'<td style="font-size:11px;color:var(--text2);font-family:\'DM Mono\',monospace">'+r.no+'</td>'
       +'<td style="font-weight:500;font-size:12px">'+r.scope+'</td>'
       +'<td style="font-size:12px">'+r.site+'</td>'
       +'<td style="font-size:11px;color:'+(r.ref==='–'||!r.ref?'var(--text3)':'var(--blue)')+';font-family:\'DM Mono\',monospace">'+(r.ref||'–')+'</td>'
       +'<td><span class="qbadge '+stcl+'">'+r.status+'</span></td>'
       +'<td style="white-space:nowrap">'
+        +addQuoteBtn
         +'<button class="btn-icon" onclick="openRFQModal(\''+id+'\')" title="Edit"><i class="ti ti-pencil"></i></button>'
         +'<button class="btn-icon" onclick="confirmDeleteRFQ(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>'
       +'</td></tr>';
@@ -996,6 +929,7 @@ function openRFQModal(id){
   editRFQId=id||null;
   const r=id?rfqs.find(x=>x._id===id):null;
   document.getElementById('rfq-modal-ttl').textContent=r?'Edit RFQ':'New RFQ';
+  document.getElementById('rfq-f-date').value=r?r.date||'':'';
   document.getElementById('rfq-f-no').value=r?r.no:'';
   document.getElementById('rfq-f-site').value=r?r.site:'';
   document.getElementById('rfq-f-scope').value=r?r.scope:'';
@@ -1009,7 +943,7 @@ function closeRFQModal(){document.getElementById('rfq-modal-bg').classList.remov
 async function saveRFQ(){
   const scope=document.getElementById('rfq-f-scope').value.trim();
   if(!scope){alert('Please enter a scope description.');return;}
-  const data={no:document.getElementById('rfq-f-no').value.trim()||'–',scope,site:document.getElementById('rfq-f-site').value.trim(),ref:document.getElementById('rfq-f-ref').value.trim()||'–',status:document.getElementById('rfq-f-status').value,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
+  const data={date:document.getElementById('rfq-f-date').value||'',no:document.getElementById('rfq-f-no').value.trim()||'–',scope,site:document.getElementById('rfq-f-site').value.trim(),ref:document.getElementById('rfq-f-ref').value.trim()||'–',status:document.getElementById('rfq-f-status').value,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
   closeRFQModal();
   if(useFirebase&&db){
     try{
@@ -1036,6 +970,103 @@ async function confirmDeleteRFQ(id){
   rfqs=rfqs.filter(x=>x._id!==id);renderRFQ();showToast('RFQ deleted');
 }
 
+async function downloadRFQsPDF(){
+  const st=document.getElementById('rfq-filter-status').value;
+  const si=document.getElementById('rfq-filter-site').value;
+  const list=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si));
+  if(!list.length){showToast('No RFQs to export');return;}
+  const logo=await _preloadLogo();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const pageW=297,margin=10;
+  // Header
+  doc.setFillColor(198,40,40);doc.rect(0,0,pageW,18,'F');
+  if(logo){doc.addImage(logo,'PNG',margin,1,28,16);}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('RFQ Register',margin+(logo?30:0),11);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.text('Generated '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),pageW-margin,11,{align:'right'});
+  // Table header
+  const cols=[{h:'Date',w:22},{h:'RFQ No.',w:32},{h:'Scope / Description',w:80},{h:'Site',w:50},{h:'NG Quote Ref',w:32},{h:'Status',w:28}];
+  let y=24,x=margin;
+  doc.setFillColor(240,239,236);doc.rect(margin,y-5,pageW-margin*2,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(80,80,80);
+  cols.forEach(c=>{doc.text(c.h.toUpperCase(),x+1,y);x+=c.w;});
+  y+=4;
+  doc.setDrawColor(200,200,200);doc.line(margin,y,pageW-margin,y);y+=3;
+  // Rows
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  list.forEach((r,i)=>{
+    if(y>185){doc.addPage();y=15;}
+    if(i%2===0){doc.setFillColor(250,250,248);doc.rect(margin,y-4,pageW-margin*2,6,'F');}
+    const fmtDate=r.date?new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):'–';
+    const row=[fmtDate,r.no||'–',r.scope||'–',r.site||'–',r.ref||'–',r.status||'–'];
+    x=margin;
+    doc.setTextColor(30,30,30);
+    row.forEach((v,ci)=>{
+      const maxW=cols[ci].w-2;
+      const txt=doc.splitTextToSize(String(v),maxW)[0];
+      doc.text(txt,x+1,y);x+=cols[ci].w;
+    });
+    y+=6;
+  });
+  doc.save('NorthGates_RFQ_Register_'+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'_')+'.pdf');
+  showToast('RFQ list PDF downloaded ✓');
+}
+
+async function downloadQuotesPDF(){
+  const cl=document.getElementById('qf-client').value;
+  const st=document.getElementById('qf-status').value;
+  const list=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st));
+  if(!list.length){showToast('No quotes to export');return;}
+  const logo=await _preloadLogo();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const pageW=297,margin=10;
+  const fmt=n=>n?'AED '+n.toLocaleString('en-AE',{minimumFractionDigits:0,maximumFractionDigits:0}):'–';
+  // Header
+  doc.setFillColor(198,40,40);doc.rect(0,0,pageW,18,'F');
+  if(logo){doc.addImage(logo,'PNG',margin,1,28,16);}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('Quote Register',margin+(logo?30:0),11);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.text('Generated '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),pageW-margin,11,{align:'right'});
+  // Table header
+  const cols=[{h:'Date',w:22},{h:'Quote No.',w:32},{h:'Client',w:42},{h:'Scope',w:70},{h:'Location',w:45},{h:'Amount (AED)',w:32},{h:'Status',w:22}];
+  let y=24,x=margin;
+  doc.setFillColor(240,239,236);doc.rect(margin,y-5,pageW-margin*2,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(80,80,80);
+  cols.forEach(c=>{doc.text(c.h.toUpperCase(),x+1,y);x+=c.w;});
+  y+=4;
+  doc.setDrawColor(200,200,200);doc.line(margin,y,pageW-margin,y);y+=3;
+  // Rows
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  list.forEach((q,i)=>{
+    if(y>185){doc.addPage();y=15;}
+    if(i%2===0){doc.setFillColor(250,250,248);doc.rect(margin,y-4,pageW-margin*2,6,'F');}
+    const row=[q.date||'–',q.no||'–',q.client||'–',q.scope||'–',q.loc||'–',fmt(q.amt),q.status||'–'];
+    x=margin;
+    doc.setTextColor(30,30,30);
+    row.forEach((v,ci)=>{
+      const maxW=cols[ci].w-2;
+      const txt=doc.splitTextToSize(String(v),maxW)[0];
+      doc.text(txt,x+1,y);x+=cols[ci].w;
+    });
+    y+=6;
+  });
+  doc.save('NorthGates_Quote_Register_'+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'_')+'.pdf');
+  showToast('Quote list PDF downloaded ✓');
+}
+
+function addRFQToQuotes(id){
+  const r=rfqs.find(x=>x._id===id);
+  if(!r)return;
+  const tabs=document.querySelectorAll('.tab');
+  switchTab('quotes',tabs[1]);
+  openQuoteModal(null,{date:r.date||'',no:r.ref&&r.ref!=='–'?r.ref:'',client:'Khidmah LLC',scope:r.scope||'',loc:r.site||''});
+  showToast('Pre-filled from RFQ — review and save');
+}
+
 function switchTab(name,el){
   ['tasks','quotes','khidmah'].forEach(t=>{const e=document.getElementById('tab-'+t);if(e)e.style.display='none';});
   const target=document.getElementById('tab-'+name);if(target)target.style.display='flex';
@@ -1055,6 +1086,7 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 render();
+_preloadLogo();
 </script>
 </body>
 </html>
