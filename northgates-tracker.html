@@ -118,6 +118,7 @@ select:focus,input:focus{border-color:var(--red)}
 .card-modified i{font-size:10px}
 .modified-info-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px}
 .update-flash.show{opacity:1;transform:translateY(0)}
+.ltable th[onclick]:hover,.qtable th[onclick]:hover{background:var(--surface2);color:var(--text)}
 @media(max-width:700px){.board{grid-template-columns:1fr}.q-summ{grid-template-columns:repeat(2,1fr)}.f2{grid-template-columns:1fr}.topbar h1{display:none}.hstat-l{display:none}.search-input{width:110px}}
 </style>
 </head>
@@ -141,8 +142,8 @@ select:focus,input:focus{border-color:var(--red)}
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('tasks',this)"><i class="ti ti-checklist"></i>Tasks</div>
-  <div class="tab" onclick="switchTab('quotes',this)"><i class="ti ti-file-invoice"></i>Quote Register</div>
   <div class="tab" onclick="switchTab('khidmah',this)"><i class="ti ti-file-search"></i>RFQ Register</div>
+  <div class="tab" onclick="switchTab('quotes',this)"><i class="ti ti-file-invoice"></i>Quote Register</div>
 </div>
 
 <div id="tab-tasks" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
@@ -162,6 +163,8 @@ select:focus,input:focus{border-color:var(--red)}
       <option value="low">Low</option>
     </select>
     <input type="text" class="search-input" id="fsearch" placeholder="Search tasks..." oninput="render()">
+    <button class="btn-add" onclick="downloadTasksPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    <button class="btn-add" onclick="downloadTasksExcel()" style="background:#1d6f42"><i class="ti ti-file-spreadsheet"></i> Excel</button>
     <div class="vbtns">
       <button class="vbtn active" id="vb-board" onclick="switchView('board')"><i class="ti ti-layout-kanban"></i></button>
       <button class="vbtn" id="vb-list" onclick="switchView('list')"><i class="ti ti-list"></i></button>
@@ -188,7 +191,15 @@ select:focus,input:focus{border-color:var(--red)}
     </div>
     <div class="list-container" id="list-view">
       <table class="ltable">
-        <thead><tr><th>Task</th><th>Assigned To</th><th>Category</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Last Modified</th></tr></thead>
+        <thead><tr id="list-thead">
+          <th onclick="sortTable('tasks','title')" style="cursor:pointer">Task <span id="ts-title"></span></th>
+          <th onclick="sortTable('tasks','assignee')" style="cursor:pointer">Assigned To <span id="ts-assignee"></span></th>
+          <th onclick="sortTable('tasks','cat')" style="cursor:pointer">Category <span id="ts-cat"></span></th>
+          <th onclick="sortTable('tasks','priority')" style="cursor:pointer">Priority <span id="ts-priority"></span></th>
+          <th onclick="sortTable('tasks','status')" style="cursor:pointer">Status <span id="ts-status"></span></th>
+          <th onclick="sortTable('tasks','deadline')" style="cursor:pointer">Deadline <span id="ts-deadline"></span></th>
+          <th onclick="sortTable('tasks','updatedAt')" style="cursor:pointer">Last Modified <span id="ts-updatedAt"></span></th>
+        </tr></thead>
         <tbody id="list-body"></tbody>
       </table>
     </div>
@@ -198,7 +209,8 @@ select:focus,input:focus{border-color:var(--red)}
 <div id="tab-quotes" style="display:none;flex:1;overflow:hidden;flex-direction:column">
   <div class="toolbar">
     <button class="btn-add" onclick="openQuoteModal()"><i class="ti ti-plus"></i> New Quote</button>
-    <button class="btn-add" onclick="downloadQuotesPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> Download PDF</button>
+    <button class="btn-add" onclick="downloadQuotesPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    <button class="btn-add" onclick="downloadQuotesExcel()" style="background:#1d6f42"><i class="ti ti-file-spreadsheet"></i> Excel</button>
     <select id="qf-client" onchange="renderQuotes()">
       <option value="">All Clients</option>
       <option value="Khidmah LLC">Khidmah LLC</option>
@@ -228,7 +240,15 @@ select:focus,input:focus{border-color:var(--red)}
     </div>
     <div class="q-wrap">
       <table class="qtable">
-        <thead><tr><th>Date</th><th>Quote No.</th><th>Client</th><th>Scope / Location</th><th>Amount (AED)</th><th>Status</th><th style="width:60px"></th></tr></thead>
+        <thead><tr>
+          <th onclick="sortTable('quotes','date')" style="cursor:pointer">Date <span id="qs-date"></span></th>
+          <th onclick="sortTable('quotes','no')" style="cursor:pointer">Quote No. <span id="qs-no"></span></th>
+          <th onclick="sortTable('quotes','client')" style="cursor:pointer">Client <span id="qs-client"></span></th>
+          <th onclick="sortTable('quotes','scope')" style="cursor:pointer">Scope / Location <span id="qs-scope"></span></th>
+          <th onclick="sortTable('quotes','amt')" style="cursor:pointer">Amount (AED) <span id="qs-amt"></span></th>
+          <th onclick="sortTable('quotes','status')" style="cursor:pointer">Status <span id="qs-status"></span></th>
+          <th style="width:60px"></th>
+        </tr></thead>
         <tbody id="q-body"></tbody>
       </table>
     </div>
@@ -280,13 +300,22 @@ select:focus,input:focus{border-color:var(--red)}
     </select>
     <input type="text" class="search-input" id="rfq-search" placeholder="Search RFQs..." oninput="renderRFQ()">
     <button class="btn-add" onclick="openRFQModal()"><i class="ti ti-plus"></i> New RFQ</button>
-    <button class="btn-add" onclick="downloadRFQsPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> Download PDF</button>
+    <button class="btn-add" onclick="downloadRFQsPDF()" style="background:var(--text2)"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    <button class="btn-add" onclick="downloadRFQsExcel()" style="background:#1d6f42"><i class="ti ti-file-spreadsheet"></i> Excel</button>
   </div>
   <div class="content">
     <div class="warn-bar" id="rfq-warn-bar"><i class="ti ti-alert-triangle"></i><span id="rfq-warn-text">Loading…</span></div>
     <div class="q-wrap">
       <table class="qtable">
-        <thead><tr><th>Date</th><th>RFQ No.</th><th>Scope / Description</th><th>Site</th><th>NG Quote Ref</th><th>Status</th><th style="width:70px"></th></tr></thead>
+        <thead><tr>
+          <th onclick="sortTable('rfq','date')" style="cursor:pointer">Date <span id="rs-date"></span></th>
+          <th onclick="sortTable('rfq','no')" style="cursor:pointer">RFQ No. <span id="rs-no"></span></th>
+          <th onclick="sortTable('rfq','scope')" style="cursor:pointer">Scope / Description <span id="rs-scope"></span></th>
+          <th onclick="sortTable('rfq','site')" style="cursor:pointer">Site <span id="rs-site"></span></th>
+          <th onclick="sortTable('rfq','ref')" style="cursor:pointer">NG Quote Ref <span id="rs-ref"></span></th>
+          <th onclick="sortTable('rfq','status')" style="cursor:pointer">Status <span id="rs-status"></span></th>
+          <th style="width:70px"></th>
+        </tr></thead>
         <tbody id="rfq-body"></tbody>
       </table>
     </div>
@@ -315,6 +344,7 @@ select:focus,input:focus{border-color:var(--red)}
       </select>
     </div>
   </div>
+  <div class="fr"><label>Notes</label><textarea id="rfq-f-notes" placeholder="Additional notes, remarks, follow-up actions..."></textarea></div>
   <div class="m-actions">
     <button class="btn-del" id="rfq-btn-del" style="display:none" onclick="deleteRFQ()"><i class="ti ti-trash"></i> Delete</button>
     <button class="btn-cancel" onclick="closeRFQModal()">Cancel</button>
@@ -323,6 +353,34 @@ select:focus,input:focus{border-color:var(--red)}
 </div>
 </div>
 
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-bg" id="payment-modal-bg" onclick="if(event.target===this)closePaymentModal()">
+<div class="modal">
+  <h2>Log Payment</h2>
+  <div class="fr"><label>RFQ</label><div id="pay-rfq-label" style="font-size:12px;color:var(--text2);padding:6px 0"></div></div>
+  <div class="f2">
+    <div class="fr"><label>Invoice No.</label><input id="pay-inv-no" type="text" placeholder="e.g. NG/INV/001"></div>
+    <div class="fr"><label>Amount (AED)</label><input id="pay-amount" type="number" placeholder="0.00"></div>
+  </div>
+  <div class="f2">
+    <div class="fr"><label>Date</label><input id="pay-date" type="date"></div>
+    <div class="fr"><label>Payment Status</label>
+      <select id="pay-status">
+        <option value="Invoice Sent">Invoice Sent</option>
+        <option value="Partially Paid">Partially Paid</option>
+        <option value="Paid">Paid</option>
+        <option value="Overdue">Overdue</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr"><label>Notes</label><textarea id="pay-notes" placeholder="Payment notes, reference, remarks..."></textarea></div>
+  <div class="m-actions">
+    <button class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
+    <button class="btn-save" onclick="savePayment()"><i class="ti ti-cash"></i> Save Payment</button>
+  </div>
+</div>
 </div>
 
 <!-- TASK MODAL -->
@@ -352,8 +410,6 @@ select:focus,input:focus{border-color:var(--red)}
         <option value="Technical">Technical</option><option value="Admin">Admin</option>
         <option value="Quotation">Quotation</option><option value="Payment">Payment</option>
         <option value="Registration">Registration</option><option value="Compliance">Compliance</option>
-        <option value="Documentation">Documentation</option>
-        
       </select>
     </div>
     <div class="fr"><label>Priority</label>
@@ -399,9 +455,8 @@ select:focus,input:focus{border-color:var(--red)}
 
   <button class="btn-save" style="width:100%;height:36px" onclick="loginWithEmail()">Login</button>
   <button class="btn-cancel" style="width:100%;height:34px;margin-top:8px" onclick="sendPasswordReset()">Forgot Password?</button>
-<!--
- <p style="margin-top:14px;margin-bottom:0;font-size:11px;line-height:1.6;text-align:center">Allowed users:<br>info@northgatesco.com<br>sindu@northgatesco.com<br>siddarth@northgatesco.com<br>meeran@northgatesco.com</p>
--->
+
+
 </div>
 </div>
 
@@ -458,6 +513,8 @@ function _preloadLogo(){
 }
 
 
+
+function isAdmin(){return currentUserEmail==='sindu@northgatesco.com';}
 
 let tasks=[...SEED];
 let editId=null,dragId=null;
@@ -618,6 +675,48 @@ function getFiltered(){
   return tasks.filter(t=>(!a||t.assignee===a)&&(!p||t.priority===p)&&(!s||t.title.toLowerCase().includes(s)||(t.desc||'').toLowerCase().includes(s)));
 }
 
+// ── Sort state ──────────────────────────────────────────
+const sortState={tasks:{col:'',dir:'asc'},quotes:{col:'',dir:'asc'},rfq:{col:'',dir:'asc'}};
+const PRIORITY_ORDER={high:0,medium:1,low:2};
+const STATUS_ORDER={todo:0,progress:1,review:2,done:3};
+
+function sortTable(tbl,col){
+  const s=sortState[tbl];
+  if(s.col===col){s.dir=s.dir==='asc'?'desc':'asc';}else{s.col=col;s.dir='asc';}
+  if(tbl==='tasks')render();
+  else if(tbl==='quotes')renderQuotes();
+  else renderRFQ();
+}
+
+function sortArr(arr,col,dir,type){
+  if(!col)return arr;
+  return [...arr].sort((a,b)=>{
+    let va=a[col]??'',vb=b[col]??'';
+    if(type==='priority'){va=PRIORITY_ORDER[va]??9;vb=PRIORITY_ORDER[vb]??9;}
+    else if(type==='status'){va=STATUS_ORDER[va]??9;vb=STATUS_ORDER[vb]??9;}
+    else if(type==='num'){va=parseFloat(va)||0;vb=parseFloat(vb)||0;}
+    else{va=String(va).toLowerCase();vb=String(vb).toLowerCase();}
+    if(va<vb)return dir==='asc'?-1:1;
+    if(va>vb)return dir==='asc'?1:-1;
+    return 0;
+  });
+}
+
+function setSortIndicators(prefix,col,dir,cols){
+  cols.forEach(c=>{
+    const el=document.getElementById(prefix+c);
+    if(el)el.textContent=c===col?(dir==='asc'?'↑':'↓'):'';
+  });
+}
+
+// ── CSV/Excel helper ─────────────────────────────────────
+function downloadCSV(filename,headers,rows){
+  const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download=filename;a.click();
+}
+
 function deadlineBadge(deadline,status){
   if(!deadline||status==='done')return'';
   const today=new Date();today.setHours(0,0,0,0);
@@ -663,7 +762,10 @@ function cardHTML(t){
 }
 
 function render(){
-  const f=getFiltered();
+  const {col,dir}=sortState.tasks;
+  const typeMap={priority:'priority',status:'status',deadline:'',updatedAt:''};
+  const f=sortArr(getFiltered(),col,dir,typeMap[col]||'str');
+  setSortIndicators('ts-',col,dir,['title','assignee','cat','priority','status','deadline','updatedAt']);
   ['todo','progress','review','done'].forEach(s=>{
     const ct=f.filter(t=>t.status===s);
     const el=document.getElementById('t-'+s);
@@ -714,7 +816,7 @@ function editTask(id){
   document.getElementById('f-assignee').value=t.assignee;document.getElementById('f-status').value=t.status;
   document.getElementById('f-cat').value=t.cat||'Operations';document.getElementById('f-priority').value=t.priority||'medium';
   document.getElementById('f-deadline').value=t.deadline||'';
-  document.getElementById('btn-del').style.display='';
+  document.getElementById('btn-del').style.display=isAdmin()?'':'none';
   document.getElementById('btn-clone').style.display='';
   // Show last modified info
   const mwrap=document.getElementById('f-modified-wrap');
@@ -791,7 +893,10 @@ function renderQuotes(){
   const cl=document.getElementById('qf-client').value;
   const st=document.getElementById('qf-status').value;
   const s=(document.getElementById('qf-search').value||'').toLowerCase();
-  const f=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st)&&(!s||(q.no||'').toLowerCase().includes(s)||(q.client||'').toLowerCase().includes(s)||(q.scope||'').toLowerCase().includes(s)||(q.loc||'').toLowerCase().includes(s)));
+  const {col,dir}=sortState.quotes;
+  const filtered=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st)&&(!s||(q.no||'').toLowerCase().includes(s)||(q.client||'').toLowerCase().includes(s)||(q.scope||'').toLowerCase().includes(s)||(q.loc||'').toLowerCase().includes(s)));
+  const f=sortArr(filtered,col,dir,col==='amt'?'num':'str');
+  setSortIndicators('qs-',col,dir,['date','no','client','scope','amt','status']);
   const fmt=n=>n?'AED '+n.toLocaleString('en-AE',{minimumFractionDigits:0,maximumFractionDigits:0}):'–';
   document.getElementById('q-body').innerHTML=f.map(q=>{
     const id=q._id||'';
@@ -806,7 +911,7 @@ function renderQuotes(){
       +'</select></td>'
       +'<td style="white-space:nowrap">'
         +'<button class="btn-icon" onclick="openQuoteModal(\''+id+'\')" title="Edit"><i class="ti ti-pencil"></i></button>'
-        +'<button class="btn-icon" onclick="confirmDeleteQuote(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>'
+        +(isAdmin()?'<button class="btn-icon" onclick="confirmDeleteQuote(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>':'')
       +'</td></tr>';
   }).join('');
   document.getElementById('qs-total').textContent=quotes.length;
@@ -834,7 +939,7 @@ function openQuoteModal(id,prefill){
   document.getElementById('qm-loc').value=q?q.loc:(prefill&&prefill.loc?prefill.loc:'');
   document.getElementById('qm-amt').value=q&&q.amt?q.amt:'';
   document.getElementById('qm-status').value=q?q.status:'Draft';
-  document.getElementById('quote-btn-del').style.display=q?'':'none';
+  document.getElementById('quote-btn-del').style.display=(q&&isAdmin())?'':'none';
   document.getElementById('quote-modal-bg').classList.add('open');
 }
 function closeQuoteModal(){document.getElementById('quote-modal-bg').classList.remove('open');}
@@ -904,7 +1009,10 @@ function renderRFQ(){
   const curSite=siteEl.value;
   siteEl.innerHTML='<option value="">All Sites</option>'+sites.map(s=>'<option value="'+s+'" '+(s===curSite?'selected':'')+'>'+s+'</option>').join('');
   const srch=(document.getElementById('rfq-search').value||'').toLowerCase();
-  const f=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si)&&(!srch||(r.no||'').toLowerCase().includes(srch)||(r.scope||'').toLowerCase().includes(srch)||(r.site||'').toLowerCase().includes(srch)||(r.ref||'').toLowerCase().includes(srch)));
+  const {col:rc,dir:rd}=sortState.rfq;
+  const filtered2=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si)&&(!srch||(r.no||'').toLowerCase().includes(srch)||(r.scope||'').toLowerCase().includes(srch)||(r.site||'').toLowerCase().includes(srch)||(r.ref||'').toLowerCase().includes(srch)));
+  const f=sortArr(filtered2,rc,rd,'str');
+  setSortIndicators('rs-',rc,rd,['date','no','scope','site','ref','status']);
   const pending=rfqs.filter(r=>r.status==='Pending'||r.status==='Site Visit Completed').length;
   document.getElementById('rfq-warn-text').innerHTML='<strong>'+pending+' RFQ'+(pending!==1?'s':'')+'</strong> pending submission (Pending + Site Visit Completed)';
   document.getElementById('rfq-warn-bar').style.display=pending>0?'flex':'none';
@@ -913,17 +1021,22 @@ function renderRFQ(){
     const stcl=r.status==='Submitted'||r.status==='Awarded'?'q-acc':r.status==='Lost'?'q-lost':r.status==='Site Visit Completed'?'q-site':'q-pend';
     const fmtDate=r.date?new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):'–';
     const addQuoteBtn=r.status==='Submitted'?'<button class="btn-icon" onclick="addRFQToQuotes(\''+id+'\')" title="Add to Quote Register" style="color:var(--blue)"><i class="ti ti-file-plus"></i></button>':'';
+    const addTaskBtn='<button class="btn-icon" onclick="addRFQToTask(\''+id+'\')" title="Create Task from RFQ" style="color:var(--green)"><i class="ti ti-checklist"></i></button>';
+    const payBtn=r.status==='Awarded'?'<button class="btn-icon" onclick="openPaymentModal(\''+id+'\')" title="Log Payment" style="color:var(--orange)"><i class="ti ti-cash"></i></button>':'';
+    const payInfo=r.payment?'<br><span style="font-size:10px;color:var(--green);font-weight:500"><i class="ti ti-circle-check" style="font-size:10px"></i> '+r.payment.status+(r.payment.invNo?' · '+r.payment.invNo:'')+'</span>':'';
     return '<tr>'
       +'<td style="white-space:nowrap;font-size:11px;color:var(--text2)">'+fmtDate+'</td>'
       +'<td style="font-size:11px;color:var(--text2);font-family:\'DM Mono\',monospace">'+r.no+'</td>'
-      +'<td style="font-weight:500;font-size:12px">'+r.scope+'</td>'
+      +'<td style="font-weight:500;font-size:12px">'+r.scope+(r.notes?'<br><span style="font-size:10px;color:var(--text2);font-weight:400">'+r.notes+'</span>':'')+payInfo+'</td>'
       +'<td style="font-size:12px">'+r.site+'</td>'
       +'<td style="font-size:11px;color:'+(r.ref==='–'||!r.ref?'var(--text3)':'var(--blue)')+';font-family:\'DM Mono\',monospace">'+(r.ref||'–')+'</td>'
       +'<td><span class="qbadge '+stcl+'">'+r.status+'</span></td>'
       +'<td style="white-space:nowrap">'
+        +addTaskBtn
         +addQuoteBtn
+        +payBtn
         +'<button class="btn-icon" onclick="openRFQModal(\''+id+'\')" title="Edit"><i class="ti ti-pencil"></i></button>'
-        +'<button class="btn-icon" onclick="confirmDeleteRFQ(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>'
+        +(isAdmin()?'<button class="btn-icon" onclick="confirmDeleteRFQ(\''+id+'\')" title="Delete"><i class="ti ti-trash" style="color:#dc2626"></i></button>':'')
       +'</td></tr>';
   }).join('');
 }
@@ -938,7 +1051,8 @@ function openRFQModal(id){
   document.getElementById('rfq-f-scope').value=r?r.scope:'';
   document.getElementById('rfq-f-ref').value=r?(r.ref||'–'):'–';
   document.getElementById('rfq-f-status').value=r?r.status:'Pending';
-  document.getElementById('rfq-btn-del').style.display=r?'':'none';
+  document.getElementById('rfq-f-notes').value=r?(r.notes||''):'';
+  document.getElementById('rfq-btn-del').style.display=(r&&isAdmin())?'':'none';
   document.getElementById('rfq-modal-bg').classList.add('open');
 }
 function closeRFQModal(){document.getElementById('rfq-modal-bg').classList.remove('open');}
@@ -946,7 +1060,8 @@ function closeRFQModal(){document.getElementById('rfq-modal-bg').classList.remov
 async function saveRFQ(){
   const scope=document.getElementById('rfq-f-scope').value.trim();
   if(!scope){alert('Please enter a scope description.');return;}
-  const data={date:document.getElementById('rfq-f-date').value||'',no:document.getElementById('rfq-f-no').value.trim()||'–',scope,site:document.getElementById('rfq-f-site').value.trim(),ref:document.getElementById('rfq-f-ref').value.trim()||'–',status:document.getElementById('rfq-f-status').value,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
+  const existing=editRFQId?rfqs.find(x=>x._id===editRFQId):null;
+  const data={date:document.getElementById('rfq-f-date').value||'',no:document.getElementById('rfq-f-no').value.trim()||'–',scope,site:document.getElementById('rfq-f-site').value.trim(),ref:document.getElementById('rfq-f-ref').value.trim()||'–',status:document.getElementById('rfq-f-status').value,notes:document.getElementById('rfq-f-notes').value.trim()||'',...(existing&&existing.payment?{payment:existing.payment}:{}),updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()};
   closeRFQModal();
   if(useFirebase&&db){
     try{
@@ -1017,6 +1132,73 @@ async function downloadRFQsPDF(){
   showToast('RFQ list PDF downloaded ✓');
 }
 
+function downloadTasksExcel(){
+  const f=getFiltered();
+  if(!f.length){showToast('No tasks to export');return;}
+  const headers=['Title','Assigned To','Category','Priority','Status','Deadline','Last Modified By','Last Modified At'];
+  const rows=f.map(t=>[t.title||'',t.assignee||'',t.cat||'',(t.priority||'').charAt(0).toUpperCase()+(t.priority||'').slice(1),STMAP[t.status]||'',t.deadline||'',t.updatedBy||'',t.updatedAt?new Date(t.updatedAt).toLocaleDateString('en-GB'):'']);
+  downloadCSV('NorthGates_Tasks_'+new Date().toLocaleDateString('en-GB').replace(/\//g,'-')+'.csv',headers,rows);
+  showToast('Tasks Excel downloaded ✓');
+}
+
+function downloadQuotesExcel(){
+  const cl=document.getElementById('qf-client').value;
+  const st=document.getElementById('qf-status').value;
+  const list=quotes.filter(q=>(!cl||q.client===cl)&&(!st||q.status===st));
+  if(!list.length){showToast('No quotes to export');return;}
+  const headers=['Date','Quote No.','Client','Scope','Location','Amount (AED)','Status'];
+  const rows=list.map(q=>[q.date||'',q.no||'',q.client||'',q.scope||'',q.loc||'',q.amt||'',q.status||'']);
+  downloadCSV('NorthGates_Quotes_'+new Date().toLocaleDateString('en-GB').replace(/\//g,'-')+'.csv',headers,rows);
+  showToast('Quotes Excel downloaded ✓');
+}
+
+function downloadRFQsExcel(){
+  const st=document.getElementById('rfq-filter-status').value;
+  const si=document.getElementById('rfq-filter-site').value;
+  const list=rfqs.filter(r=>(!st||r.status===st)&&(!si||r.site===si));
+  if(!list.length){showToast('No RFQs to export');return;}
+  const headers=['Date','RFQ No.','Scope / Description','Site','NG Quote Ref','Status','Notes','Invoice No.','Amount (AED)','Payment Status'];
+  const rows=list.map(r=>[r.date?new Date(r.date).toLocaleDateString('en-GB'):'',r.no||'',r.scope||'',r.site||'',r.ref||'',r.status||'',r.notes||'',(r.payment&&r.payment.invNo)||'',(r.payment&&r.payment.amount)||'',(r.payment&&r.payment.status)||'']);
+  downloadCSV('NorthGates_RFQs_'+new Date().toLocaleDateString('en-GB').replace(/\//g,'-')+'.csv',headers,rows);
+  showToast('RFQs Excel downloaded ✓');
+}
+
+async function downloadTasksPDF(){
+  const f=getFiltered();
+  if(!f.length){showToast('No tasks to export');return;}
+  const logo=await _preloadLogo();
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const pageW=297,margin=10;
+  doc.setFillColor(198,40,40);doc.rect(0,0,pageW,18,'F');
+  if(logo){doc.addImage(logo,'PNG',margin,1,28,16);}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('Task Register',margin+(logo?30:0),11);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.text('Generated '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),pageW-margin,11,{align:'right'});
+  const cols=[{h:'Task Title',w:75},{h:'Assigned To',w:28},{h:'Category',w:28},{h:'Priority',w:22},{h:'Status',w:28},{h:'Deadline',w:28},{h:'Last Modified',w:55}];
+  let y=24,x=margin;
+  doc.setFillColor(240,239,236);doc.rect(margin,y-5,pageW-margin*2,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(80,80,80);
+  cols.forEach(c=>{doc.text(c.h.toUpperCase(),x+1,y);x+=c.w;});
+  y+=4;
+  doc.setDrawColor(200,200,200);doc.line(margin,y,pageW-margin,y);y+=3;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  f.forEach((t,i)=>{
+    if(y>185){doc.addPage();y=15;}
+    if(i%2===0){doc.setFillColor(250,250,248);doc.rect(margin,y-4,pageW-margin*2,6,'F');}
+    const dlStr=t.deadline?new Date(t.deadline).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):'–';
+    let modStr='–';
+    if(t.updatedBy){modStr=t.updatedBy;if(t.updatedAt){try{const d=new Date(t.updatedAt);modStr+=' '+d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});}catch(e){}}}
+    const row=[t.title||'–',t.assignee||'–',t.cat||'–',(t.priority||'medium').charAt(0).toUpperCase()+(t.priority||'medium').slice(1),STMAP[t.status]||'–',dlStr,modStr];
+    x=margin;doc.setTextColor(30,30,30);
+    row.forEach((v,ci)=>{const maxW=cols[ci].w-2;const txt=doc.splitTextToSize(String(v),maxW)[0];doc.text(txt,x+1,y);x+=cols[ci].w;});
+    y+=6;
+  });
+  doc.save('NorthGates_Tasks_'+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'_')+'.pdf');
+  showToast('Tasks PDF downloaded ✓');
+}
+
 async function downloadQuotesPDF(){
   const cl=document.getElementById('qf-client').value;
   const st=document.getElementById('qf-status').value;
@@ -1065,9 +1247,70 @@ function addRFQToQuotes(id){
   const r=rfqs.find(x=>x._id===id);
   if(!r)return;
   const tabs=document.querySelectorAll('.tab');
-  switchTab('quotes',tabs[1]);
+  switchTab('quotes',tabs[2]);
   openQuoteModal(null,{date:r.date||'',no:r.ref&&r.ref!=='–'?r.ref:'',client:'Khidmah LLC',scope:r.scope||'',loc:r.site||''});
   showToast('Pre-filled from RFQ — review and save');
+}
+
+function addRFQToTask(id){
+  const r=rfqs.find(x=>x._id===id);
+  if(!r)return;
+  const tabs=document.querySelectorAll('.tab');
+  switchTab('tasks',tabs[0]);
+  // Pre-fill task modal
+  editId=null;
+  document.getElementById('modal-ttl').textContent='New Task';
+  document.getElementById('f-title').value=r.scope||'';
+  document.getElementById('f-desc').value=(r.notes?r.notes+'\n':'')+'RFQ: '+(r.no||'–')+' | Site: '+(r.site||'–')+(r.ref&&r.ref!=='–'?' | Quote Ref: '+r.ref:'');
+  document.getElementById('f-assignee').value=currentUser||'Siddarth';
+  document.getElementById('f-status').value='todo';
+  document.getElementById('f-cat').value='Quotation';
+  document.getElementById('f-priority').value='medium';
+  document.getElementById('f-deadline').value='';
+  document.getElementById('f-modified-wrap').style.display='none';
+  document.getElementById('btn-del').style.display='none';
+  document.getElementById('btn-clone').style.display='none';
+  document.getElementById('modal-bg').classList.add('open');
+  showToast('Task pre-filled from RFQ — review and save');
+}
+
+// Payment modal state
+let paymentRFQId=null;
+
+function openPaymentModal(id){
+  paymentRFQId=id;
+  const r=rfqs.find(x=>x._id===id);
+  if(!r)return;
+  const p=r.payment||{};
+  document.getElementById('pay-rfq-label').textContent=(r.no||'RFQ')+' — '+r.scope;
+  document.getElementById('pay-inv-no').value=p.invNo||'';
+  document.getElementById('pay-amount').value=p.amount||'';
+  document.getElementById('pay-date').value=p.date||'';
+  document.getElementById('pay-status').value=p.status||'Invoice Sent';
+  document.getElementById('pay-notes').value=p.notes||'';
+  document.getElementById('payment-modal-bg').classList.add('open');
+}
+function closePaymentModal(){document.getElementById('payment-modal-bg').classList.remove('open');}
+
+async function savePayment(){
+  const r=rfqs.find(x=>x._id===paymentRFQId);
+  if(!r)return;
+  const payment={
+    invNo:document.getElementById('pay-inv-no').value.trim(),
+    amount:document.getElementById('pay-amount').value,
+    date:document.getElementById('pay-date').value,
+    status:document.getElementById('pay-status').value,
+    notes:document.getElementById('pay-notes').value.trim(),
+    updatedAt:new Date().toISOString()
+  };
+  closePaymentModal();
+  if(useFirebase&&db){
+    try{
+      await db.collection('ng_rfqs').doc(paymentRFQId).update({payment,updatedBy:currentUser||'Unknown',updatedAt:new Date().toISOString()});
+      showToast('Payment logged ✓');return;
+    }catch(e){console.warn('Firebase error',e);}
+  }
+  r.payment=payment;renderRFQ();showToast('Payment logged ✓');
 }
 
 function switchTab(name,el){
